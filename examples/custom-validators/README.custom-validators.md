@@ -1,5 +1,5 @@
 # README.custom-validators.md
-> queryfy/examples/custom-validators
+> queryfy/examples/custom-validators/main.go
 
 ### Queryfy Custom Validators Example
 
