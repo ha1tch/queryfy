@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	fmt.Println("=== Queryfy Basic Example ===\n")
+	fmt.Println("=== Queryfy Basic Example ===")
 
 	// Example 1: Basic E-commerce Order Validation
 	basicExample()
