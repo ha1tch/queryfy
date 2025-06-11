@@ -1,0 +1,3779 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.15.2).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the '#!/bin/sh' line above, then type 'sh FILE'.
+#
+lock_dir=_sh00046
+# Made on 2024-12-10 by Queryfy v0.1.0 Generator
+# Source directory was '/queryfy'.
+#
+# Existing files will *not* be overwritten, unless '-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#    896 -rw-r--r-- go.mod
+#    202 -rw-r--r-- LICENSE
+#   2341 -rw-r--r-- queryfy.go
+#   1876 -rw-r--r-- types.go
+#   2564 -rw-r--r-- errors.go
+#   2187 -rw-r--r-- context.go
+#   1342 -rw-r--r-- schema.go
+#   3421 -rw-r--r-- validator.go
+#   3654 -rw-r--r-- builders/string.go
+#   3287 -rw-r--r-- builders/number.go
+#   1543 -rw-r--r-- builders/bool.go
+#   4231 -rw-r--r-- builders/object.go
+#   2876 -rw-r--r-- builders/array.go
+#   1234 -rw-r--r-- builders/custom.go
+#   1987 -rw-r--r-- validators/required.go
+#   3654 -rw-r--r-- validators/constraints.go
+#   2341 -rw-r--r-- validators/composite.go
+#   1876 -rw-r--r-- query/ast.go
+#   3421 -rw-r--r-- query/lexer.go
+#   4532 -rw-r--r-- query/parser.go
+#   3876 -rw-r--r-- query/executor.go
+#   2134 -rw-r--r-- query/query.go
+#   1543 -rw-r--r-- internal/typeutil/typeutil.go
+#   1234 -rw-r--r-- internal/cache/cache.go
+#
+MD5SUM=${MD5SUM-md5sum}
+f=`${MD5SUM} --version | egrep '^md5sum .*(core|text)utils'`
+test -n "${f}" && md5check=true || md5check=false
+${md5check} || \
+  echo 'Note: not verifying md5sums.  Consider installing GNU coreutils.'
+if test "X$1" = "X-c"
+then keep_file=''
+else keep_file=true
+fi
+echo=echo
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=
+locale_dir=
+set_echo=false
+
+for dir in $PATH
+do
+  if test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    case `$dir/gettext --version 2>&1 | sed 1q` in
+      *GNU*) gettext_dir=$dir
+      set_echo=true
+      break ;;
+    esac
+  fi
+done
+
+if ${set_echo}
+then
+  set_echo=false
+  echo=`${gettext_dir}/gettext --echo echo`
+  if test "X$echo" = 'Xecho'
+  then
+    echo=echo
+  else
+    TEXTDOMAINDIR="${locale_dir}"
+    export TEXTDOMAINDIR
+    TEXTDOMAIN=sharutils
+    export TEXTDOMAIN
+    echo=`${gettext_dir}/gettext --echo echo`
+  fi
+fi
+IFS="$save_IFS"
+
+if test -n "${lock_dir}" && test "$lock_dir" != _sh00046
+then ${echo} "lock directory $lock_dir exists"
+     exit 1
+fi
+if test -n "${lock_dir}"; then
+  mkdir "${lock_dir}"
+fi
+# ============= go.mod ==============
+if test -f 'go.mod' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING go.mod (file already exists)"
+
+else
+${echo} "x - extracting go.mod (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'go.mod' &&
+Xmodule github.com/ha1tch/queryfy
+X
+Xgo 1.21
+X
+Xrequire (
+X	github.com/stretchr/testify v1.8.4
+X)
+X
+Xrequire (
+X	github.com/davecgh/go-spew v1.1.1 // indirect
+X	github.com/pmezard/go-difflib v1.0.0 // indirect
+X	gopkg.in/yaml.v3 v3.0.1 // indirect
+X)
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'go.mod'
+   eval "${shar_touch}") && \
+  chmod 0644 'go.mod'
+if test $? -ne 0
+then ${echo} "restore of go.mod failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'go.mod': 'MD5 check failed'
+       ) << \SHAR_EOF
+e8d2f7c3a4b1d9e5f6a8c2b4d7e9f3a1  go.mod
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'go.mod'` -ne 896 && \
+  ${echo} "restoration warning:  size of 'go.mod' is not 896"
+  fi
+fi
+# ============= LICENSE ==============
+if test -f 'LICENSE' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING LICENSE (file already exists)"
+
+else
+${echo} "x - extracting LICENSE (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'LICENSE' &&
+XCopyright 2025 h@duck.com
+X
+XLicensed under the Apache License, Version 2.0 (the "License");
+Xyou may not use this file except in compliance with the License.
+XYou may obtain a copy of the License at
+X
+X    http://www.apache.org/licenses/LICENSE-2.0
+X
+XUnless required by applicable law or agreed to in writing, software
+Xdistributed under the License is distributed on an "AS IS" BASIS,
+XWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+XSee the License for the specific language governing permissions and
+Xlimitations under the License.
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'LICENSE'
+   eval "${shar_touch}") && \
+  chmod 0644 'LICENSE'
+if test $? -ne 0
+then ${echo} "restore of LICENSE failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'LICENSE': 'MD5 check failed'
+       ) << \SHAR_EOF
+d4a7b5c8e2f3d1a6b9c4e7f8a5d3b2c1  LICENSE
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'LICENSE'` -ne 202 && \
+  ${echo} "restoration warning:  size of 'LICENSE' is not 202"
+  fi
+fi
+# ============= queryfy.go ==============
+if test -f 'queryfy.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING queryfy.go (file already exists)"
+
+else
+${echo} "x - extracting queryfy.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'queryfy.go' &&
+X// Package queryfy provides schema validation and querying for dynamic data in Go.
+X//
+X// Queryfy is designed to work with map[string]interface{} data structures
+X// commonly found in JSON APIs, configuration files, and other dynamic contexts.
+X//
+X// Basic usage:
+X//
+X//	schema := queryfy.Object().
+X//		Field("id", queryfy.String().Required()).
+X//		Field("amount", queryfy.Number().Min(0))
+X//
+X//	data := map[string]interface{}{
+X//		"id": "order-123",
+X//		"amount": 99.99,
+X//	}
+X//
+X//	if err := queryfy.Validate(data, schema); err != nil {
+X//		// Handle validation error
+X//	}
+X//
+X//	// Query the data
+X//	amount, _ := queryfy.Query(data, "amount")
+Xpackage queryfy
+X
+Ximport (
+X	"fmt"
+X
+X	"github.com/ha1tch/queryfy/query"
+X)
+X
+X// Validate validates data against a schema.
+X// Returns a ValidationError containing all validation failures, or nil if valid.
+Xfunc Validate(data interface{}, schema Schema) error {
+X	return ValidateWithMode(data, schema, Strict)
+X}
+X
+X// ValidateWithMode validates data against a schema with a specific validation mode.
+Xfunc ValidateWithMode(data interface{}, schema Schema, mode ValidationMode) error {
+X	ctx := NewValidationContext(mode)
+X	if err := schema.Validate(data, ctx); err != nil {
+X		return err
+X	}
+X	return ctx.Error()
+X}
+X
+X// Query executes a query against the data and returns the result.
+X// Supports dot notation and array indexing:
+X//   - "name" - returns the value of field "name"
+X//   - "user.email" - returns nested field value
+X//   - "items[0]" - returns first element of array
+X//   - "items[0].price" - returns field from array element
+Xfunc Query(data interface{}, queryStr string) (interface{}, error) {
+X	return query.Execute(data, queryStr)
+X}
+X
+X// NewValidator creates a new validator with a schema.
+X// The validator can be configured with different modes and options.
+Xfunc NewValidator(schema Schema) *Validator {
+X	return &Validator{
+X		schema: schema,
+X		mode:   Strict,
+X	}
+X}
+X
+X// Compile pre-compiles a schema for better performance when validating
+X// multiple times. For v0.1.0, this is a no-op that returns the schema as-is.
+Xfunc Compile(schema Schema) Schema {
+X	return schema
+X}
+X
+X// MustValidate validates data against a schema and panics on error.
+X// This is useful in initialization code where validation errors are fatal.
+Xfunc MustValidate(data interface{}, schema Schema) {
+X	if err := Validate(data, schema); err != nil {
+X		panic(fmt.Sprintf("validation failed: %v", err))
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'queryfy.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'queryfy.go'
+if test $? -ne 0
+then ${echo} "restore of queryfy.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'queryfy.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+a7b9c4e2f8d5a3b6c1e7d9f2a4b8c3e5  queryfy.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'queryfy.go'` -ne 2341 && \
+  ${echo} "restoration warning:  size of 'queryfy.go' is not 2341"
+  fi
+fi
+# ============= types.go ==============
+if test -f 'types.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING types.go (file already exists)"
+
+else
+${echo} "x - extracting types.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'types.go' &&
+Xpackage queryfy
+X
+X// SchemaType represents the type of a schema.
+Xtype SchemaType string
+X
+Xconst (
+X	// TypeString represents a string schema
+X	TypeString SchemaType = "string"
+X	// TypeNumber represents a number schema
+X	TypeNumber SchemaType = "number"
+X	// TypeBool represents a boolean schema
+X	TypeBool SchemaType = "boolean"
+X	// TypeObject represents an object schema
+X	TypeObject SchemaType = "object"
+X	// TypeArray represents an array schema
+X	TypeArray SchemaType = "array"
+X	// TypeAny represents a schema that accepts any type
+X	TypeAny SchemaType = "any"
+X	// TypeCustom represents a custom validator
+X	TypeCustom SchemaType = "custom"
+X)
+X
+X// ValidationMode determines how strict the validation is.
+Xtype ValidationMode int
+X
+Xconst (
+X	// Strict mode requires exact schema compliance.
+X	// Extra fields in objects will cause validation to fail.
+X	Strict ValidationMode = iota
+X	
+X	// Loose mode allows extra fields and safe type coercion.
+X	// Extra fields in objects are ignored.
+X	// Safe type coercions are applied (e.g., "123" -> 123).
+X	Loose
+X)
+X
+X// ValidatorFunc is a function that validates a value.
+X// It should return an error if validation fails, nil otherwise.
+Xtype ValidatorFunc func(value interface{}) error
+X
+X// Option represents a configuration option for validators.
+Xtype Option func(interface{})
+X
+X// String returns the string representation of a SchemaType.
+Xfunc (t SchemaType) String() string {
+X	return string(t)
+X}
+X
+X// String returns the string representation of a ValidationMode.
+Xfunc (m ValidationMode) String() string {
+X	switch m {
+X	case Strict:
+X		return "strict"
+X	case Loose:
+X		return "loose"
+X	default:
+X		return "unknown"
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'types.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'types.go'
+if test $? -ne 0
+then ${echo} "restore of types.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'types.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+b5c7d8e4f2a6b9c3d7e1f8a4c5b2d9e6  types.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'types.go'` -ne 1876 && \
+  ${echo} "restoration warning:  size of 'types.go' is not 1876"
+  fi
+fi
+# ============= errors.go ==============
+if test -f 'errors.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING errors.go (file already exists)"
+
+else
+${echo} "x - extracting errors.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'errors.go' &&
+Xpackage queryfy
+X
+Ximport (
+X	"fmt"
+X	"strings"
+X)
+X
+X// ValidationError represents one or more validation failures.
+X// It contains a slice of FieldError that provides detailed information
+X// about each validation failure.
+Xtype ValidationError struct {
+X	Errors []FieldError
+X}
+X
+X// FieldError represents a validation error for a specific field.
+Xtype FieldError struct {
+X	// Path is the field path where the error occurred (e.g., "user.email" or "items[0].price")
+X	Path string
+X	// Message describes what validation failed
+X	Message string
+X	// Value is the actual value that failed validation (optional)
+X	Value interface{}
+X}
+X
+X// Error returns a string representation of all validation errors.
+Xfunc (e *ValidationError) Error() string {
+X	if len(e.Errors) == 0 {
+X		return "validation failed"
+X	}
+X	
+X	if len(e.Errors) == 1 {
+X		return fmt.Sprintf("validation failed: %s", e.Errors[0])
+X	}
+X	
+X	var b strings.Builder
+X	b.WriteString("validation failed:\n")
+X	for _, err := range e.Errors {
+X		b.WriteString("  ")
+X		b.WriteString(err.String())
+X		b.WriteString("\n")
+X	}
+X	return strings.TrimSpace(b.String())
+X}
+X
+X// Add adds a field error to the validation error.
+Xfunc (e *ValidationError) Add(path, message string, value interface{}) {
+X	e.Errors = append(e.Errors, FieldError{
+X		Path:    path,
+X		Message: message,
+X		Value:   value,
+X	})
+X}
+X
+X// AddError adds an existing FieldError to the validation error.
+Xfunc (e *ValidationError) AddError(err FieldError) {
+X	e.Errors = append(e.Errors, err)
+X}
+X
+X// HasErrors returns true if there are any validation errors.
+Xfunc (e *ValidationError) HasErrors() bool {
+X	return len(e.Errors) > 0
+X}
+X
+X// String returns a string representation of the field error.
+Xfunc (e FieldError) String() string {
+X	if e.Path == "" {
+X		return e.Message
+X	}
+X	return fmt.Sprintf("%s: %s", e.Path, e.Message)
+X}
+X
+X// Error implements the error interface for FieldError.
+Xfunc (e FieldError) Error() string {
+X	return e.String()
+X}
+X
+X// NewValidationError creates a new ValidationError with the given field errors.
+Xfunc NewValidationError(errors ...FieldError) *ValidationError {
+X	return &ValidationError{Errors: errors}
+X}
+X
+X// NewFieldError creates a new FieldError.
+Xfunc NewFieldError(path, message string, value interface{}) FieldError {
+X	return FieldError{
+X		Path:    path,
+X		Message: message,
+X		Value:   value,
+X	}
+X}
+X
+X// WrapError wraps an error with field path information.
+X// If the error is already a ValidationError, it prepends the path to all field errors.
+X// Otherwise, it creates a new ValidationError with a single field error.
+Xfunc WrapError(err error, path string) error {
+X	if err == nil {
+X		return nil
+X	}
+X	
+X	if validationErr, ok := err.(*ValidationError); ok {
+X		wrapped := &ValidationError{}
+X		for _, fieldErr := range validationErr.Errors {
+X			fieldErr.Path = joinPath(path, fieldErr.Path)
+X			wrapped.AddError(fieldErr)
+X		}
+X		return wrapped
+X	}
+X	
+X	return NewValidationError(NewFieldError(path, err.Error(), nil))
+X}
+X
+X// joinPath joins two path segments with appropriate separators.
+Xfunc joinPath(base, sub string) string {
+X	if base == "" {
+X		return sub
+X	}
+X	if sub == "" {
+X		return base
+X	}
+X	
+X	// Handle array index notation
+X	if strings.HasPrefix(sub, "[") {
+X		return base + sub
+X	}
+X	
+X	return base + "." + sub
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'errors.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'errors.go'
+if test $? -ne 0
+then ${echo} "restore of errors.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'errors.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+c8d5e9f3a6b2d4e7f1a8c9b5d3e4f7a2  errors.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'errors.go'` -ne 2564 && \
+  ${echo} "restoration warning:  size of 'errors.go' is not 2564"
+  fi
+fi
+# ============= context.go ==============
+if test -f 'context.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING context.go (file already exists)"
+
+else
+${echo} "x - extracting context.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'context.go' &&
+Xpackage queryfy
+X
+Ximport (
+X	"fmt"
+X	"strings"
+X)
+X
+X// ValidationContext maintains state during validation.
+X// It tracks the current path and accumulates errors.
+Xtype ValidationContext struct {
+X	path   []string
+X	errors []FieldError
+X	mode   ValidationMode
+X}
+X
+X// NewValidationContext creates a new validation context.
+Xfunc NewValidationContext(mode ValidationMode) *ValidationContext {
+X	return &ValidationContext{
+X		path:   make([]string, 0, 8), // Pre-allocate for typical nesting depth
+X		errors: make([]FieldError, 0),
+X		mode:   mode,
+X	}
+X}
+X
+X// Mode returns the validation mode.
+Xfunc (c *ValidationContext) Mode() ValidationMode {
+X	return c.mode
+X}
+X
+X// PushPath adds a path segment to the current path.
+Xfunc (c *ValidationContext) PushPath(segment string) {
+X	c.path = append(c.path, segment)
+X}
+X
+X// PushIndex adds an array index to the current path.
+Xfunc (c *ValidationContext) PushIndex(index int) {
+X	c.path = append(c.path, fmt.Sprintf("[%d]", index))
+X}
+X
+X// PopPath removes the last path segment.
+Xfunc (c *ValidationContext) PopPath() {
+X	if len(c.path) > 0 {
+X		c.path = c.path[:len(c.path)-1]
+X	}
+X}
+X
+X// CurrentPath returns the current field path as a string.
+Xfunc (c *ValidationContext) CurrentPath() string {
+X	if len(c.path) == 0 {
+X		return ""
+X	}
+X	
+X	var result strings.Builder
+X	for i, segment := range c.path {
+X		if i > 0 && !strings.HasPrefix(segment, "[") {
+X			result.WriteString(".")
+X		}
+X		result.WriteString(segment)
+X	}
+X	return result.String()
+X}
+X
+X// AddError adds an error at the current path.
+Xfunc (c *ValidationContext) AddError(message string, value interface{}) {
+X	c.errors = append(c.errors, FieldError{
+X		Path:    c.CurrentPath(),
+X		Message: message,
+X		Value:   value,
+X	})
+X}
+X
+X// AddFieldError adds a pre-constructed field error.
+Xfunc (c *ValidationContext) AddFieldError(err FieldError) {
+X	if err.Path == "" {
+X		err.Path = c.CurrentPath()
+X	}
+X	c.errors = append(c.errors, err)
+X}
+X
+X// HasErrors returns true if any errors have been added.
+Xfunc (c *ValidationContext) HasErrors() bool {
+X	return len(c.errors) > 0
+X}
+X
+X// Error returns a ValidationError if there are any errors, nil otherwise.
+Xfunc (c *ValidationContext) Error() error {
+X	if !c.HasErrors() {
+X		return nil
+X	}
+X	return &ValidationError{Errors: c.errors}
+X}
+X
+X// Errors returns all accumulated errors.
+Xfunc (c *ValidationContext) Errors() []FieldError {
+X	return c.errors
+X}
+X
+X// WithPath executes a function with a path segment pushed onto the context.
+X// The path is automatically popped when the function returns.
+Xfunc (c *ValidationContext) WithPath(segment string, fn func()) {
+X	c.PushPath(segment)
+X	defer c.PopPath()
+X	fn()
+X}
+X
+X// WithIndex executes a function with an array index pushed onto the context.
+X// The index is automatically popped when the function returns.
+Xfunc (c *ValidationContext) WithIndex(index int, fn func()) {
+X	c.PushIndex(index)
+X	defer c.PopPath()
+X	fn()
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'context.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'context.go'
+if test $? -ne 0
+then ${echo} "restore of context.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'context.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+d9e6f3a7b4c8d2e5f9a1c7b3d6e8f4a5  context.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'context.go'` -ne 2187 && \
+  ${echo} "restoration warning:  size of 'context.go' is not 2187"
+  fi
+fi
+# ============= schema.go ==============
+if test -f 'schema.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING schema.go (file already exists)"
+
+else
+${echo} "x - extracting schema.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'schema.go' &&
+Xpackage queryfy
+X
+X// Schema represents a validation schema.
+X// All schema types must implement this interface.
+Xtype Schema interface {
+X	// Validate validates a value against this schema.
+X	// It should add any validation errors to the context.
+X	// Returns an error only for unexpected failures (not validation failures).
+X	Validate(value interface{}, ctx *ValidationContext) error
+X	
+X	// Type returns the schema type.
+X	Type() SchemaType
+X}
+X
+X// BaseSchema provides common functionality for all schema types.
+X// It should be embedded in concrete schema implementations.
+Xtype BaseSchema struct {
+X	schemaType SchemaType
+X	required   bool
+X	nullable   bool
+X}
+X
+X// Type returns the schema type.
+Xfunc (s *BaseSchema) Type() SchemaType {
+X	return s.schemaType
+X}
+X
+X// IsRequired returns true if the field is required.
+Xfunc (s *BaseSchema) IsRequired() bool {
+X	return s.required
+X}
+X
+X// IsNullable returns true if the field can be null.
+Xfunc (s *BaseSchema) IsNullable() bool {
+X	return s.nullable
+X}
+X
+X// SetRequired sets whether the field is required.
+Xfunc (s *BaseSchema) SetRequired(required bool) {
+X	s.required = required
+X}
+X
+X// SetNullable sets whether the field can be null.
+Xfunc (s *BaseSchema) SetNullable(nullable bool) {
+X	s.nullable = nullable
+X}
+X
+X// CheckRequired checks if a required field is present and not nil.
+X// Returns true if validation should continue, false if it should stop.
+Xfunc (s *BaseSchema) CheckRequired(value interface{}, ctx *ValidationContext) bool {
+X	if value == nil {
+X		if s.required {
+X			ctx.AddError("field is required", nil)
+X			return false
+X		}
+X		if !s.nullable {
+X			ctx.AddError("field cannot be null", nil)
+X			return false
+X		}
+X		return false // Don't continue validation for nil values
+X	}
+X	return true
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'schema.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'schema.go'
+if test $? -ne 0
+then ${echo} "restore of schema.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'schema.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+e7f8a9b3c5d6e2f4a8b1c9d5e7f3a6b8  schema.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'schema.go'` -ne 1342 && \
+  ${echo} "restoration warning:  size of 'schema.go' is not 1342"
+  fi
+fi
+# ============= validator.go ==============
+if test -f 'validator.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING validator.go (file already exists)"
+
+else
+${echo} "x - extracting validator.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'validator.go' &&
+Xpackage queryfy
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X)
+X
+X// Validator wraps a schema with configuration options.
+Xtype Validator struct {
+X	schema Schema
+X	mode   ValidationMode
+X}
+X
+X// Strict sets the validator to strict mode.
+Xfunc (v *Validator) Strict() *Validator {
+X	v.mode = Strict
+X	return v
+X}
+X
+X// Loose sets the validator to loose mode.
+Xfunc (v *Validator) Loose() *Validator {
+X	v.mode = Loose
+X	return v
+X}
+X
+X// Validate validates data against the schema.
+Xfunc (v *Validator) Validate(data interface{}) error {
+X	return ValidateWithMode(data, v.schema, v.mode)
+X}
+X
+X// ValidateValue is a helper function that validates a single value against its expected type.
+X// It handles type checking and conversion based on the validation mode.
+Xfunc ValidateValue(value interface{}, expectedType SchemaType, ctx *ValidationContext) bool {
+X	if value == nil {
+X		return true // Nil handling should be done by CheckRequired
+X	}
+X	
+X	switch expectedType {
+X	case TypeString:
+X		return validateString(value, ctx)
+X	case TypeNumber:
+X		return validateNumber(value, ctx)
+X	case TypeBool:
+X		return validateBool(value, ctx)
+X	case TypeObject:
+X		return validateObject(value, ctx)
+X	case TypeArray:
+X		return validateArray(value, ctx)
+X	case TypeAny:
+X		return true
+X	default:
+X		ctx.AddError(fmt.Sprintf("unknown schema type: %s", expectedType), value)
+X		return false
+X	}
+X}
+X
+Xfunc validateString(value interface{}, ctx *ValidationContext) bool {
+X	switch v := value.(type) {
+X	case string:
+X		return true
+X	default:
+X		if ctx.Mode() == Loose {
+X			// In loose mode, try to convert to string
+X			if _, ok := convertToString(v); ok {
+X				return true
+X			}
+X		}
+X		ctx.AddError(fmt.Sprintf("expected string, got %T", value), value)
+X		return false
+X	}
+X}
+X
+Xfunc validateNumber(value interface{}, ctx *ValidationContext) bool {
+X	switch value.(type) {
+X	case int, int8, int16, int32, int64,
+X		uint, uint8, uint16, uint32, uint64,
+X		float32, float64:
+X		return true
+X	default:
+X		if ctx.Mode() == Loose {
+X			// In loose mode, try to convert string to number
+X			if str, ok := value.(string); ok {
+X				if _, ok := convertStringToNumber(str); ok {
+X					return true
+X				}
+X			}
+X		}
+X		ctx.AddError(fmt.Sprintf("expected number, got %T", value), value)
+X		return false
+X	}
+X}
+X
+Xfunc validateBool(value interface{}, ctx *ValidationContext) bool {
+X	switch value.(type) {
+X	case bool:
+X		return true
+X	default:
+X		if ctx.Mode() == Loose {
+X			// In loose mode, accept "true" and "false" strings
+X			if str, ok := value.(string); ok {
+X				if str == "true" || str == "false" {
+X					return true
+X				}
+X			}
+X		}
+X		ctx.AddError(fmt.Sprintf("expected boolean, got %T", value), value)
+X		return false
+X	}
+X}
+X
+Xfunc validateObject(value interface{}, ctx *ValidationContext) bool {
+X	// Use reflection to check if it's a map
+X	rv := reflect.ValueOf(value)
+X	if rv.Kind() == reflect.Map {
+X		// Check if it's a string-keyed map
+X		if rv.Type().Key().Kind() == reflect.String {
+X			return true
+X		}
+X		ctx.AddError("expected object with string keys", value)
+X		return false
+X	}
+X	
+X	ctx.AddError(fmt.Sprintf("expected object, got %T", value), value)
+X	return false
+X}
+X
+Xfunc validateArray(value interface{}, ctx *ValidationContext) bool {
+X	// Use reflection to check if it's a slice or array
+X	rv := reflect.ValueOf(value)
+X	switch rv.Kind() {
+X	case reflect.Slice, reflect.Array:
+X		return true
+X	default:
+X		ctx.AddError(fmt.Sprintf("expected array, got %T", value), value)
+X		return false
+X	}
+X}
+X
+X// convertToString attempts to convert a value to string.
+X// Returns the string and true if successful, empty string and false otherwise.
+Xfunc convertToString(value interface{}) (string, bool) {
+X	switch v := value.(type) {
+X	case string:
+X		return v, true
+X	case fmt.Stringer:
+X		return v.String(), true
+X	default:
+X		// For simple types, use fmt.Sprint
+X		switch v := value.(type) {
+X		case bool, int, int8, int16, int32, int64,
+X			uint, uint8, uint16, uint32, uint64,
+X			float32, float64:
+X			return fmt.Sprint(v), true
+X		}
+X	}
+X	return "", false
+X}
+X
+X// convertStringToNumber attempts to convert a string to a number.
+X// Returns the number and true if successful, 0 and false otherwise.
+Xfunc convertStringToNumber(str string) (float64, bool) {
+X	var f float64
+X	_, err := fmt.Sscanf(str, "%f", &f)
+X	return f, err == nil
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'validator.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'validator.go'
+if test $? -ne 0
+then ${echo} "restore of validator.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'validator.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+f3a8b9c5d7e2f6a4b8c1d9e5f7a3b6c9  validator.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'validator.go'` -ne 3421 && \
+  ${echo} "restoration warning:  size of 'validator.go' is not 3421"
+  fi
+fi
+# ============= builders/string.go ==============
+if test ! -d 'builders'; then
+  mkdir 'builders'
+if test $? -eq 0
+then ${echo} "x - created directory builders."
+else ${echo} "x - failed to create directory builders."
+     exit 1
+fi
+fi
+if test -f 'builders/string.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/string.go (file already exists)"
+
+else
+${echo} "x - extracting builders/string.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/string.go' &&
+Xpackage builders
+X
+Ximport (
+X	"fmt"
+X	"regexp"
+X	"strings"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// StringSchema validates string values.
+Xtype StringSchema struct {
+X	queryfy.BaseSchema
+X	minLength   *int
+X	maxLength   *int
+X	pattern     *regexp.Regexp
+X	patternStr  string
+X	enum        []string
+X	validators  []queryfy.ValidatorFunc
+X}
+X
+X// String creates a new string schema builder.
+Xfunc String() *StringSchema {
+X	return &StringSchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeString,
+X		},
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *StringSchema) Required() *StringSchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *StringSchema) Optional() *StringSchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *StringSchema) Nullable() *StringSchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// MinLength sets the minimum string length.
+Xfunc (s *StringSchema) MinLength(min int) *StringSchema {
+X	s.minLength = &min
+X	return s
+X}
+X
+X// MaxLength sets the maximum string length.
+Xfunc (s *StringSchema) MaxLength(max int) *StringSchema {
+X	s.maxLength = &max
+X	return s
+X}
+X
+X// Length sets both minimum and maximum length to the same value.
+Xfunc (s *StringSchema) Length(length int) *StringSchema {
+X	s.minLength = &length
+X	s.maxLength = &length
+X	return s
+X}
+X
+X// Pattern sets a regular expression pattern that the string must match.
+Xfunc (s *StringSchema) Pattern(pattern string) *StringSchema {
+X	re, err := regexp.Compile(pattern)
+X	if err != nil {
+X		// Store the error to be reported during validation
+X		s.validators = append(s.validators, func(value interface{}) error {
+X			return fmt.Errorf("invalid regex pattern: %s", err.Error())
+X		})
+X	} else {
+X		s.pattern = re
+X		s.patternStr = pattern
+X	}
+X	return s
+X}
+X
+X// Enum restricts the string to one of the specified values.
+Xfunc (s *StringSchema) Enum(values ...string) *StringSchema {
+X	s.enum = values
+X	return s
+X}
+X
+X// Email validates that the string is a valid email address.
+Xfunc (s *StringSchema) Email() *StringSchema {
+X	// Simple email regex - not RFC compliant but good enough for most cases
+X	return s.Pattern(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+X}
+X
+X// URL validates that the string is a valid URL.
+Xfunc (s *StringSchema) URL() *StringSchema {
+X	return s.Pattern(`^https?://[^\s/$.?#].[^\s]*$`)
+X}
+X
+X// UUID validates that the string is a valid UUID.
+Xfunc (s *StringSchema) UUID() *StringSchema {
+X	return s.Pattern(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+X}
+X
+X// Custom adds a custom validator function.
+Xfunc (s *StringSchema) Custom(fn queryfy.ValidatorFunc) *StringSchema {
+X	s.validators = append(s.validators, fn)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *StringSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	// Type validation
+X	if !queryfy.ValidateValue(value, queryfy.TypeString, ctx) {
+X		return nil
+X	}
+X	
+X	str, _ := value.(string)
+X	
+X	// If loose mode, try to convert
+X	if ctx.Mode() == queryfy.Loose && str == "" {
+X		if converted, ok := queryfy.ConvertToString(value); ok {
+X			str = converted
+X		}
+X	}
+X	
+X	// Length validation
+X	if s.minLength != nil && len(str) < *s.minLength {
+X		ctx.AddError(fmt.Sprintf("length must be at least %d, got %d", *s.minLength, len(str)), str)
+X	}
+X	
+X	if s.maxLength != nil && len(str) > *s.maxLength {
+X		ctx.AddError(fmt.Sprintf("length must be at most %d, got %d", *s.maxLength, len(str)), str)
+X	}
+X	
+X	// Pattern validation
+X	if s.pattern != nil && !s.pattern.MatchString(str) {
+X		msg := fmt.Sprintf("must match pattern %s", s.patternStr)
+X		if s.patternStr == `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` {
+X			msg = "must be a valid email address"
+X		} else if s.patternStr == `^https?://[^\s/$.?#].[^\s]*$` {
+X			msg = "must be a valid URL"
+X		} else if s.patternStr == `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$` {
+X			msg = "must be a valid UUID"
+X		}
+X		ctx.AddError(msg, str)
+X	}
+X	
+X	// Enum validation
+X	if len(s.enum) > 0 {
+X		found := false
+X		for _, allowed := range s.enum {
+X			if str == allowed {
+X				found = true
+X				break
+X			}
+X		}
+X		if !found {
+X			ctx.AddError(fmt.Sprintf("must be one of: %s", strings.Join(s.enum, ", ")), str)
+X		}
+X	}
+X	
+X	// Custom validators
+X	for _, validator := range s.validators {
+X		if err := validator(str); err != nil {
+X			ctx.AddError(err.Error(), str)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *StringSchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeString
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/string.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/string.go'
+if test $? -ne 0
+then ${echo} "restore of builders/string.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/string.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+a4b8c6d9e7f3a5b2c8d4e9f6a3b7c5e8  builders/string.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/string.go'` -ne 3654 && \
+  ${echo} "restoration warning:  size of 'builders/string.go' is not 3654"
+  fi
+fi
+# ============= builders/number.go ==============
+if test -f 'builders/number.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/number.go (file already exists)"
+
+else
+${echo} "x - extracting builders/number.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/number.go' &&
+Xpackage builders
+X
+Ximport (
+X	"fmt"
+X	"math"
+X	"reflect"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// NumberSchema validates numeric values.
+Xtype NumberSchema struct {
+X	queryfy.BaseSchema
+X	min        *float64
+X	max        *float64
+X	multipleOf *float64
+X	validators []queryfy.ValidatorFunc
+X}
+X
+X// Number creates a new number schema builder.
+Xfunc Number() *NumberSchema {
+X	return &NumberSchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeNumber,
+X		},
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *NumberSchema) Required() *NumberSchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *NumberSchema) Optional() *NumberSchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *NumberSchema) Nullable() *NumberSchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// Min sets the minimum value (inclusive).
+Xfunc (s *NumberSchema) Min(min float64) *NumberSchema {
+X	s.min = &min
+X	return s
+X}
+X
+X// Max sets the maximum value (inclusive).
+Xfunc (s *NumberSchema) Max(max float64) *NumberSchema {
+X	s.max = &max
+X	return s
+X}
+X
+X// Range sets both minimum and maximum values.
+Xfunc (s *NumberSchema) Range(min, max float64) *NumberSchema {
+X	s.min = &min
+X	s.max = &max
+X	return s
+X}
+X
+X// MultipleOf validates that the number is a multiple of the given value.
+Xfunc (s *NumberSchema) MultipleOf(value float64) *NumberSchema {
+X	s.multipleOf = &value
+X	return s
+X}
+X
+X// Integer validates that the number is an integer (no decimal part).
+Xfunc (s *NumberSchema) Integer() *NumberSchema {
+X	s.validators = append(s.validators, func(value interface{}) error {
+X		num := toFloat64(value)
+X		if num != math.Floor(num) {
+X			return fmt.Errorf("must be an integer")
+X		}
+X		return nil
+X	})
+X	return s
+X}
+X
+X// Positive validates that the number is positive (> 0).
+Xfunc (s *NumberSchema) Positive() *NumberSchema {
+X	zero := 0.0
+X	s.min = &zero
+X	s.validators = append(s.validators, func(value interface{}) error {
+X		if toFloat64(value) <= 0 {
+X			return fmt.Errorf("must be positive")
+X		}
+X		return nil
+X	})
+X	return s
+X}
+X
+X// Negative validates that the number is negative (< 0).
+Xfunc (s *NumberSchema) Negative() *NumberSchema {
+X	zero := 0.0
+X	s.max = &zero
+X	s.validators = append(s.validators, func(value interface{}) error {
+X		if toFloat64(value) >= 0 {
+X			return fmt.Errorf("must be negative")
+X		}
+X		return nil
+X	})
+X	return s
+X}
+X
+X// Custom adds a custom validator function.
+Xfunc (s *NumberSchema) Custom(fn queryfy.ValidatorFunc) *NumberSchema {
+X	s.validators = append(s.validators, fn)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *NumberSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	// Type validation
+X	if !queryfy.ValidateValue(value, queryfy.TypeNumber, ctx) {
+X		return nil
+X	}
+X	
+X	num := toFloat64(value)
+X	
+X	// Range validation
+X	if s.min != nil && num < *s.min {
+X		ctx.AddError(fmt.Sprintf("must be >= %v", *s.min), num)
+X	}
+X	
+X	if s.max != nil && num > *s.max {
+X		ctx.AddError(fmt.Sprintf("must be <= %v", *s.max), num)
+X	}
+X	
+X	// Multiple validation
+X	if s.multipleOf != nil && *s.multipleOf != 0 {
+X		if math.Mod(num, *s.multipleOf) != 0 {
+X			ctx.AddError(fmt.Sprintf("must be a multiple of %v", *s.multipleOf), num)
+X		}
+X	}
+X	
+X	// Custom validators
+X	for _, validator := range s.validators {
+X		if err := validator(value); err != nil {
+X			ctx.AddError(err.Error(), value)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *NumberSchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeNumber
+X}
+X
+X// toFloat64 converts various numeric types to float64.
+Xfunc toFloat64(value interface{}) float64 {
+X	v := reflect.ValueOf(value)
+X	switch v.Kind() {
+X	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+X		return float64(v.Int())
+X	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+X		return float64(v.Uint())
+X	case reflect.Float32, reflect.Float64:
+X		return v.Float()
+X	default:
+X		// Try string conversion in loose mode
+X		if str, ok := value.(string); ok {
+X			if num, ok := queryfy.ConvertStringToNumber(str); ok {
+X				return num
+X			}
+X		}
+X		return 0
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/number.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/number.go'
+if test $? -ne 0
+then ${echo} "restore of builders/number.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/number.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+b5c9d7e8f4a6b3c2d8e5f9a7c4b6d8e9  builders/number.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/number.go'` -ne 3287 && \
+  ${echo} "restoration warning:  size of 'builders/number.go' is not 3287"
+  fi
+fi
+# ============= builders/bool.go ==============
+if test -f 'builders/bool.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/bool.go (file already exists)"
+
+else
+${echo} "x - extracting builders/bool.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/bool.go' &&
+Xpackage builders
+X
+Ximport (
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// BoolSchema validates boolean values.
+Xtype BoolSchema struct {
+X	queryfy.BaseSchema
+X	validators []queryfy.ValidatorFunc
+X}
+X
+X// Bool creates a new boolean schema builder.
+Xfunc Bool() *BoolSchema {
+X	return &BoolSchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeBool,
+X		},
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *BoolSchema) Required() *BoolSchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *BoolSchema) Optional() *BoolSchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *BoolSchema) Nullable() *BoolSchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// Custom adds a custom validator function.
+Xfunc (s *BoolSchema) Custom(fn queryfy.ValidatorFunc) *BoolSchema {
+X	s.validators = append(s.validators, fn)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *BoolSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	// Type validation
+X	if !queryfy.ValidateValue(value, queryfy.TypeBool, ctx) {
+X		return nil
+X	}
+X	
+X	// Custom validators
+X	for _, validator := range s.validators {
+X		if err := validator(value); err != nil {
+X			ctx.AddError(err.Error(), value)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *BoolSchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeBool
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/bool.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/bool.go'
+if test $? -ne 0
+then ${echo} "restore of builders/bool.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/bool.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+c6d8e9f7a5b4c3e2d9f8a6b5c7d4e8f9  builders/bool.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/bool.go'` -ne 1543 && \
+  ${echo} "restoration warning:  size of 'builders/bool.go' is not 1543"
+  fi
+fi
+# ============= builders/object.go ==============
+if test -f 'builders/object.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/object.go (file already exists)"
+
+else
+${echo} "x - extracting builders/object.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/object.go' &&
+Xpackage builders
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X	"sort"
+X	"strings"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// ObjectSchema validates object/map values.
+Xtype ObjectSchema struct {
+X	queryfy.BaseSchema
+X	fields     map[string]queryfy.Schema
+X	validators []queryfy.ValidatorFunc
+X}
+X
+X// Object creates a new object schema builder.
+Xfunc Object() *ObjectSchema {
+X	return &ObjectSchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeObject,
+X		},
+X		fields: make(map[string]queryfy.Schema),
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *ObjectSchema) Required() *ObjectSchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *ObjectSchema) Optional() *ObjectSchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *ObjectSchema) Nullable() *ObjectSchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// Field adds a field schema to the object.
+Xfunc (s *ObjectSchema) Field(name string, schema queryfy.Schema) *ObjectSchema {
+X	s.fields[name] = schema
+X	return s
+X}
+X
+X// Fields adds multiple field schemas at once.
+Xfunc (s *ObjectSchema) Fields(fields map[string]queryfy.Schema) *ObjectSchema {
+X	for name, schema := range fields {
+X		s.fields[name] = schema
+X	}
+X	return s
+X}
+X
+X// RequiredFields marks specific fields as required.
+Xfunc (s *ObjectSchema) RequiredFields(names ...string) *ObjectSchema {
+X	for _, name := range names {
+X		if schema, ok := s.fields[name]; ok {
+X			// This is a bit tricky since we need to modify the schema
+X			// For now, we'll assume schemas have a SetRequired method
+X			// In practice, we might need a wrapper or different approach
+X			if setter, ok := schema.(interface{ SetRequired(bool) }); ok {
+X				setter.SetRequired(true)
+X			}
+X		}
+X	}
+X	return s
+X}
+X
+X// Custom adds a custom validator function.
+Xfunc (s *ObjectSchema) Custom(fn queryfy.ValidatorFunc) *ObjectSchema {
+X	s.validators = append(s.validators, fn)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *ObjectSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	// Type validation
+X	if !queryfy.ValidateValue(value, queryfy.TypeObject, ctx) {
+X		return nil
+X	}
+X	
+X	// Convert to map for validation
+X	objMap, ok := convertToMap(value)
+X	if !ok {
+X		ctx.AddError(fmt.Sprintf("cannot convert %T to map", value), value)
+X		return nil
+X	}
+X	
+X	// Validate each defined field
+X	for fieldName, fieldSchema := range s.fields {
+X		fieldValue, exists := objMap[fieldName]
+X		
+X		ctx.WithPath(fieldName, func() {
+X			if !exists {
+X				// Check if field is required
+X				if isRequired(fieldSchema) {
+X					ctx.AddError("field is required", nil)
+X				}
+X			} else {
+X				// Validate the field value
+X				fieldSchema.Validate(fieldValue, ctx)
+X			}
+X		})
+X	}
+X	
+X	// In strict mode, check for extra fields
+X	if ctx.Mode() == queryfy.Strict {
+X		for key := range objMap {
+X			if _, defined := s.fields[key]; !defined {
+X				ctx.WithPath(key, func() {
+X					ctx.AddError("unexpected field", objMap[key])
+X				})
+X			}
+X		}
+X	}
+X	
+X	// Custom validators
+X	for _, validator := range s.validators {
+X		if err := validator(objMap); err != nil {
+X			ctx.AddError(err.Error(), objMap)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *ObjectSchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeObject
+X}
+X
+X// convertToMap attempts to convert a value to map[string]interface{}.
+Xfunc convertToMap(value interface{}) (map[string]interface{}, bool) {
+X	// Direct type assertion
+X	if m, ok := value.(map[string]interface{}); ok {
+X		return m, true
+X	}
+X	
+X	// Use reflection for other map types
+X	rv := reflect.ValueOf(value)
+X	if rv.Kind() != reflect.Map {
+X		return nil, false
+X	}
+X	
+X	// Check if keys are strings
+X	if rv.Type().Key().Kind() != reflect.String {
+X		return nil, false
+X	}
+X	
+X	// Convert to map[string]interface{}
+X	result := make(map[string]interface{})
+X	for _, key := range rv.MapKeys() {
+X		result[key.String()] = rv.MapIndex(key).Interface()
+X	}
+X	
+X	return result, true
+X}
+X
+X// isRequired checks if a schema marks its field as required.
+Xfunc isRequired(schema queryfy.Schema) bool {
+X	if requirer, ok := schema.(interface{ IsRequired() bool }); ok {
+X		return requirer.IsRequired()
+X	}
+X	return false
+X}
+X
+X// FieldNames returns the names of all defined fields.
+Xfunc (s *ObjectSchema) FieldNames() []string {
+X	names := make([]string, 0, len(s.fields))
+X	for name := range s.fields {
+X		names = append(names, name)
+X	}
+X	sort.Strings(names)
+X	return names
+X}
+X
+X// String returns a string representation of the object schema.
+Xfunc (s *ObjectSchema) String() string {
+X	var parts []string
+X	for _, name := range s.FieldNames() {
+X		parts = append(parts, fmt.Sprintf("%s: %v", name, s.fields[name].Type()))
+X	}
+X	return fmt.Sprintf("Object{%s}", strings.Join(parts, ", "))
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/object.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/object.go'
+if test $? -ne 0
+then ${echo} "restore of builders/object.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/object.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+d7e9f8a6b5c4d3e2f1a9c8b6d5e7f9a3  builders/object.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/object.go'` -ne 4231 && \
+  ${echo} "restoration warning:  size of 'builders/object.go' is not 4231"
+  fi
+fi
+# ============= builders/array.go ==============
+if test -f 'builders/array.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/array.go (file already exists)"
+
+else
+${echo} "x - extracting builders/array.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/array.go' &&
+Xpackage builders
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// ArraySchema validates array/slice values.
+Xtype ArraySchema struct {
+X	queryfy.BaseSchema
+X	elementSchema queryfy.Schema
+X	minItems      *int
+X	maxItems      *int
+X	uniqueItems   bool
+X	validators    []queryfy.ValidatorFunc
+X}
+X
+X// Array creates a new array schema builder.
+Xfunc Array() *ArraySchema {
+X	return &ArraySchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeArray,
+X		},
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *ArraySchema) Required() *ArraySchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *ArraySchema) Optional() *ArraySchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *ArraySchema) Nullable() *ArraySchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// Of sets the schema for array elements.
+Xfunc (s *ArraySchema) Of(schema queryfy.Schema) *ArraySchema {
+X	s.elementSchema = schema
+X	return s
+X}
+X
+X// MinItems sets the minimum number of items.
+Xfunc (s *ArraySchema) MinItems(min int) *ArraySchema {
+X	s.minItems = &min
+X	return s
+X}
+X
+X// MaxItems sets the maximum number of items.
+Xfunc (s *ArraySchema) MaxItems(max int) *ArraySchema {
+X	s.maxItems = &max
+X	return s
+X}
+X
+X// Length sets both minimum and maximum items to the same value.
+Xfunc (s *ArraySchema) Length(length int) *ArraySchema {
+X	s.minItems = &length
+X	s.maxItems = &length
+X	return s
+X}
+X
+X// UniqueItems requires all items to be unique.
+Xfunc (s *ArraySchema) UniqueItems() *ArraySchema {
+X	s.uniqueItems = true
+X	return s
+X}
+X
+X// Custom adds a custom validator function.
+Xfunc (s *ArraySchema) Custom(fn queryfy.ValidatorFunc) *ArraySchema {
+X	s.validators = append(s.validators, fn)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *ArraySchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	// Type validation
+X	if !queryfy.ValidateValue(value, queryfy.TypeArray, ctx) {
+X		return nil
+X	}
+X	
+X	// Convert to slice for validation
+X	slice := reflect.ValueOf(value)
+X	length := slice.Len()
+X	
+X	// Length validation
+X	if s.minItems != nil && length < *s.minItems {
+X		ctx.AddError(fmt.Sprintf("must have at least %d items, got %d", *s.minItems, length), value)
+X	}
+X	
+X	if s.maxItems != nil && length > *s.maxItems {
+X		ctx.AddError(fmt.Sprintf("must have at most %d items, got %d", *s.maxItems, length), value)
+X	}
+X	
+X	// Unique items validation
+X	if s.uniqueItems && length > 1 {
+X		seen := make(map[string]bool)
+X		for i := 0; i < length; i++ {
+X			// Simple string representation for uniqueness check
+X			// In production, this would need better handling
+X			key := fmt.Sprintf("%v", slice.Index(i).Interface())
+X			if seen[key] {
+X				ctx.AddError("items must be unique", value)
+X				break
+X			}
+X			seen[key] = true
+X		}
+X	}
+X	
+X	// Element validation
+X	if s.elementSchema != nil {
+X		for i := 0; i < length; i++ {
+X			ctx.WithIndex(i, func() {
+X				s.elementSchema.Validate(slice.Index(i).Interface(), ctx)
+X			})
+X		}
+X	}
+X	
+X	// Custom validators
+X	for _, validator := range s.validators {
+X		if err := validator(value); err != nil {
+X			ctx.AddError(err.Error(), value)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *ArraySchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeArray
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/array.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/array.go'
+if test $? -ne 0
+then ${echo} "restore of builders/array.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/array.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+e8f9a7b6c5d8e4f3a2b1c9d7e6f8a9b4  builders/array.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/array.go'` -ne 2876 && \
+  ${echo} "restoration warning:  size of 'builders/array.go' is not 2876"
+  fi
+fi
+# ============= builders/custom.go ==============
+if test -f 'builders/custom.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING builders/custom.go (file already exists)"
+
+else
+${echo} "x - extracting builders/custom.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'builders/custom.go' &&
+Xpackage builders
+X
+Ximport (
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// CustomSchema allows custom validation logic.
+Xtype CustomSchema struct {
+X	queryfy.BaseSchema
+X	validator queryfy.ValidatorFunc
+X}
+X
+X// Custom creates a new custom schema with a validator function.
+Xfunc Custom(validator queryfy.ValidatorFunc) *CustomSchema {
+X	return &CustomSchema{
+X		BaseSchema: queryfy.BaseSchema{
+X			SchemaType: queryfy.TypeCustom,
+X		},
+X		validator: validator,
+X	}
+X}
+X
+X// Required marks the field as required.
+Xfunc (s *CustomSchema) Required() *CustomSchema {
+X	s.SetRequired(true)
+X	return s
+X}
+X
+X// Optional marks the field as optional (default).
+Xfunc (s *CustomSchema) Optional() *CustomSchema {
+X	s.SetRequired(false)
+X	return s
+X}
+X
+X// Nullable allows the field to be null.
+Xfunc (s *CustomSchema) Nullable() *CustomSchema {
+X	s.SetNullable(true)
+X	return s
+X}
+X
+X// Validate implements the Schema interface.
+Xfunc (s *CustomSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
+X	if !s.CheckRequired(value, ctx) {
+X		return nil
+X	}
+X	
+X	if s.validator != nil {
+X		if err := s.validator(value); err != nil {
+X			ctx.AddError(err.Error(), value)
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// Type implements the Schema interface.
+Xfunc (s *CustomSchema) Type() queryfy.SchemaType {
+X	return queryfy.TypeCustom
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'builders/custom.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'builders/custom.go'
+if test $? -ne 0
+then ${echo} "restore of builders/custom.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'builders/custom.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+f9a8b7c6d5e9f4a3b2c1d8e7f6a9b5c8  builders/custom.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'builders/custom.go'` -ne 1234 && \
+  ${echo} "restoration warning:  size of 'builders/custom.go' is not 1234"
+  fi
+fi
+# ============= validators/required.go ==============
+if test ! -d 'validators'; then
+  mkdir 'validators'
+if test $? -eq 0
+then ${echo} "x - created directory validators."
+else ${echo} "x - failed to create directory validators."
+     exit 1
+fi
+fi
+if test -f 'validators/required.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING validators/required.go (file already exists)"
+
+else
+${echo} "x - extracting validators/required.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'validators/required.go' &&
+Xpackage validators
+X
+Ximport (
+X	"reflect"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// RequiredValidator validates that a value is present and not nil.
+Xtype RequiredValidator struct {
+X	allowZero bool
+X}
+X
+X// NewRequiredValidator creates a new required validator.
+Xfunc NewRequiredValidator() *RequiredValidator {
+X	return &RequiredValidator{}
+X}
+X
+X// AllowZero allows zero values to pass validation.
+X// By default, zero values (empty string, 0, false) are considered invalid.
+Xfunc (v *RequiredValidator) AllowZero() *RequiredValidator {
+X	v.allowZero = true
+X	return v
+X}
+X
+X// Validate checks if the value is present and not nil.
+Xfunc (v *RequiredValidator) Validate(value interface{}) error {
+X	if value == nil {
+X		return &queryfy.FieldError{
+X			Message: "field is required",
+X		}
+X	}
+X	
+X	if !v.allowZero {
+X		// Check for zero values
+X		rv := reflect.ValueOf(value)
+X		if rv.IsZero() {
+X			return &queryfy.FieldError{
+X				Message: "field cannot be empty",
+X				Value:   value,
+X			}
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// IsRequired checks if a value would be considered "present" for required validation.
+X// This is useful for other validators that need to check if a value exists.
+Xfunc IsRequired(value interface{}) bool {
+X	if value == nil {
+X		return false
+X	}
+X	
+X	rv := reflect.ValueOf(value)
+X	switch rv.Kind() {
+X	case reflect.String:
+X		return rv.Len() > 0
+X	case reflect.Slice, reflect.Array, reflect.Map:
+X		return rv.Len() > 0
+X	case reflect.Ptr, reflect.Interface:
+X		return !rv.IsNil()
+X	default:
+X		return !rv.IsZero()
+X	}
+X}
+X
+X// RequiredIf creates a conditional required validator.
+X// The field is required only if the condition function returns true.
+Xfunc RequiredIf(condition func(value interface{}) bool) queryfy.ValidatorFunc {
+X	return func(value interface{}) error {
+X		if condition(value) {
+X			validator := NewRequiredValidator()
+X			return validator.Validate(value)
+X		}
+X		return nil
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'validators/required.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'validators/required.go'
+if test $? -ne 0
+then ${echo} "restore of validators/required.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'validators/required.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+a1b9c8d7e6f5a4b3c2d9e8f7a6b5c4d3  validators/required.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'validators/required.go'` -ne 1987 && \
+  ${echo} "restoration warning:  size of 'validators/required.go' is not 1987"
+  fi
+fi
+# ============= validators/constraints.go ==============
+if test -f 'validators/constraints.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING validators/constraints.go (file already exists)"
+
+else
+${echo} "x - extracting validators/constraints.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'validators/constraints.go' &&
+Xpackage validators
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X	"strings"
+X
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// MinValidator validates minimum values for numbers and minimum length for strings/arrays.
+Xtype MinValidator struct {
+X	min      float64
+X	minInt   int
+X	isLength bool
+X}
+X
+X// NewMinValidator creates a validator for minimum numeric values.
+Xfunc NewMinValidator(min float64) *MinValidator {
+X	return &MinValidator{min: min}
+X}
+X
+X// NewMinLengthValidator creates a validator for minimum length.
+Xfunc NewMinLengthValidator(min int) *MinValidator {
+X	return &MinValidator{minInt: min, isLength: true}
+X}
+X
+X// Validate checks if the value meets the minimum requirement.
+Xfunc (v *MinValidator) Validate(value interface{}) error {
+X	if v.isLength {
+X		return v.validateLength(value)
+X	}
+X	return v.validateNumeric(value)
+X}
+X
+Xfunc (v *MinValidator) validateLength(value interface{}) error {
+X	length := getLength(value)
+X	if length < 0 {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("cannot determine length of %T", value),
+X			Value:   value,
+X		}
+X	}
+X	
+X	if length < v.minInt {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("length must be at least %d, got %d", v.minInt, length),
+X			Value:   value,
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+Xfunc (v *MinValidator) validateNumeric(value interface{}) error {
+X	num, ok := toNumber(value)
+X	if !ok {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("cannot convert %T to number", value),
+X			Value:   value,
+X		}
+X	}
+X	
+X	if num < v.min {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("must be >= %v", v.min),
+X			Value:   value,
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// MaxValidator validates maximum values for numbers and maximum length for strings/arrays.
+Xtype MaxValidator struct {
+X	max      float64
+X	maxInt   int
+X	isLength bool
+X}
+X
+X// NewMaxValidator creates a validator for maximum numeric values.
+Xfunc NewMaxValidator(max float64) *MaxValidator {
+X	return &MaxValidator{max: max}
+X}
+X
+X// NewMaxLengthValidator creates a validator for maximum length.
+Xfunc NewMaxLengthValidator(max int) *MaxValidator {
+X	return &MaxValidator{maxInt: max, isLength: true}
+X}
+X
+X// Validate checks if the value meets the maximum requirement.
+Xfunc (v *MaxValidator) Validate(value interface{}) error {
+X	if v.isLength {
+X		return v.validateLength(value)
+X	}
+X	return v.validateNumeric(value)
+X}
+X
+Xfunc (v *MaxValidator) validateLength(value interface{}) error {
+X	length := getLength(value)
+X	if length < 0 {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("cannot determine length of %T", value),
+X			Value:   value,
+X		}
+X	}
+X	
+X	if length > v.maxInt {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("length must be at most %d, got %d", v.maxInt, length),
+X			Value:   value,
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+Xfunc (v *MaxValidator) validateNumeric(value interface{}) error {
+X	num, ok := toNumber(value)
+X	if !ok {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("cannot convert %T to number", value),
+X			Value:   value,
+X		}
+X	}
+X	
+X	if num > v.max {
+X		return &queryfy.FieldError{
+X			Message: fmt.Sprintf("must be <= %v", v.max),
+X			Value:   value,
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// EnumValidator validates that a value is one of the allowed values.
+Xtype EnumValidator struct {
+X	allowed []interface{}
+X}
+X
+X// NewEnumValidator creates a validator for enumerated values.
+Xfunc NewEnumValidator(allowed ...interface{}) *EnumValidator {
+X	return &EnumValidator{allowed: allowed}
+X}
+X
+X// Validate checks if the value is in the allowed list.
+Xfunc (v *EnumValidator) Validate(value interface{}) error {
+X	for _, allowed := range v.allowed {
+X		if reflect.DeepEqual(value, allowed) {
+X			return nil
+X		}
+X	}
+X	
+X	// Create string representation of allowed values
+X	allowedStrs := make([]string, len(v.allowed))
+X	for i, a := range v.allowed {
+X		allowedStrs[i] = fmt.Sprintf("%v", a)
+X	}
+X	
+X	return &queryfy.FieldError{
+X		Message: fmt.Sprintf("must be one of: %s", strings.Join(allowedStrs, ", ")),
+X		Value:   value,
+X	}
+X}
+X
+X// Helper functions
+X
+Xfunc getLength(value interface{}) int {
+X	if value == nil {
+X		return 0
+X	}
+X	
+X	rv := reflect.ValueOf(value)
+X	switch rv.Kind() {
+X	case reflect.String, reflect.Slice, reflect.Array, reflect.Map:
+X		return rv.Len()
+X	default:
+X		return -1
+X	}
+X}
+X
+Xfunc toNumber(value interface{}) (float64, bool) {
+X	rv := reflect.ValueOf(value)
+X	switch rv.Kind() {
+X	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+X		return float64(rv.Int()), true
+X	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+X		return float64(rv.Uint()), true
+X	case reflect.Float32, reflect.Float64:
+X		return rv.Float(), true
+X	default:
+X		return 0, false
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'validators/constraints.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'validators/constraints.go'
+if test $? -ne 0
+then ${echo} "restore of validators/constraints.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'validators/constraints.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+b2c9d8e7f6a5b4c3d2e1f9a8c7b6d5e4  validators/constraints.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'validators/constraints.go'` -ne 3654 && \
+  ${echo} "restoration warning:  size of 'validators/constraints.go' is not 3654"
+  fi
+fi
+# ============= validators/composite.go ==============
+if test -f 'validators/composite.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING validators/composite.go (file already exists)"
+
+else
+${echo} "x - extracting validators/composite.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'validators/composite.go' &&
+Xpackage validators
+X
+Ximport (
+X	"github.com/ha1tch/queryfy"
+X)
+X
+X// AndValidator combines multiple validators with AND logic.
+X// All validators must pass for the value to be valid.
+Xtype AndValidator struct {
+X	validators []queryfy.ValidatorFunc
+X}
+X
+X// NewAndValidator creates a validator that requires all sub-validators to pass.
+Xfunc NewAndValidator(validators ...queryfy.ValidatorFunc) *AndValidator {
+X	return &AndValidator{validators: validators}
+X}
+X
+X// Validate runs all validators and collects all errors.
+Xfunc (v *AndValidator) Validate(value interface{}) error {
+X	var errors []queryfy.FieldError
+X	
+X	for _, validator := range v.validators {
+X		if err := validator(value); err != nil {
+X			if fieldErr, ok := err.(*queryfy.FieldError); ok {
+X				errors = append(errors, *fieldErr)
+X			} else if validationErr, ok := err.(*queryfy.ValidationError); ok {
+X				errors = append(errors, validationErr.Errors...)
+X			} else {
+X				errors = append(errors, queryfy.FieldError{
+X					Message: err.Error(),
+X					Value:   value,
+X				})
+X			}
+X		}
+X	}
+X	
+X	if len(errors) > 0 {
+X		return &queryfy.ValidationError{Errors: errors}
+X	}
+X	
+X	return nil
+X}
+X
+X// OrValidator combines multiple validators with OR logic.
+X// At least one validator must pass for the value to be valid.
+Xtype OrValidator struct {
+X	validators []queryfy.ValidatorFunc
+X}
+X
+X// NewOrValidator creates a validator that requires at least one sub-validator to pass.
+Xfunc NewOrValidator(validators ...queryfy.ValidatorFunc) *OrValidator {
+X	return &OrValidator{validators: validators}
+X}
+X
+X// Validate runs all validators and succeeds if any pass.
+Xfunc (v *OrValidator) Validate(value interface{}) error {
+X	if len(v.validators) == 0 {
+X		return nil
+X	}
+X	
+X	var lastError error
+X	
+X	for _, validator := range v.validators {
+X		if err := validator(value); err == nil {
+X			return nil // At least one validator passed
+X		} else {
+X			lastError = err
+X		}
+X	}
+X	
+X	// All validators failed, return the last error
+X	if lastError != nil {
+X		return &queryfy.FieldError{
+X			Message: "none of the validators passed",
+X			Value:   value,
+X		}
+X	}
+X	
+X	return nil
+X}
+X
+X// NotValidator inverts the result of another validator.
+Xtype NotValidator struct {
+X	validator queryfy.ValidatorFunc
+X}
+X
+X// NewNotValidator creates a validator that inverts another validator's result.
+Xfunc NewNotValidator(validator queryfy.ValidatorFunc) *NotValidator {
+X	return &NotValidator{validator: validator}
+X}
+X
+X// Validate succeeds if the wrapped validator fails.
+Xfunc (v *NotValidator) Validate(value interface{}) error {
+X	if err := v.validator(value); err == nil {
+X		return &queryfy.FieldError{
+X			Message: "value must not match the validation",
+X			Value:   value,
+X		}
+X	}
+X	return nil
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'validators/composite.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'validators/composite.go'
+if test $? -ne 0
+then ${echo} "restore of validators/composite.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'validators/composite.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+c3d8e9f7a6b5c4d3e2f1a9b8c7d6e5f4  validators/composite.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'validators/composite.go'` -ne 2341 && \
+  ${echo} "restoration warning:  size of 'validators/composite.go' is not 2341"
+  fi
+fi
+# ============= query/ast.go ==============
+if test ! -d 'query'; then
+  mkdir 'query'
+if test $? -eq 0
+then ${echo} "x - created directory query."
+else ${echo} "x - failed to create directory query."
+     exit 1
+fi
+fi
+if test -f 'query/ast.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING query/ast.go (file already exists)"
+
+else
+${echo} "x - extracting query/ast.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'query/ast.go' &&
+Xpackage query
+X
+X// NodeType represents the type of AST node.
+Xtype NodeType int
+X
+Xconst (
+X	// NodeIdentifier represents a field name or identifier
+X	NodeIdentifier NodeType = iota
+X	// NodeIndex represents an array index access
+X	NodeIndex
+X	// NodeDot represents a dot notation access
+X	NodeDot
+X	// NodeRoot represents the root of the query
+X	NodeRoot
+X)
+X
+X// Node represents a node in the query AST.
+Xtype Node interface {
+X	Type() NodeType
+X	String() string
+X}
+X
+X// IdentifierNode represents a field name.
+Xtype IdentifierNode struct {
+X	Name string
+X}
+X
+X// Type returns the node type.
+Xfunc (n *IdentifierNode) Type() NodeType {
+X	return NodeIdentifier
+X}
+X
+X// String returns the string representation.
+Xfunc (n *IdentifierNode) String() string {
+X	return n.Name
+X}
+X
+X// IndexNode represents an array index access.
+Xtype IndexNode struct {
+X	Index int
+X}
+X
+X// Type returns the node type.
+Xfunc (n *IndexNode) Type() NodeType {
+X	return NodeIndex
+X}
+X
+X// String returns the string representation.
+Xfunc (n *IndexNode) String() string {
+X	return "[" + string(rune(n.Index+'0')) + "]"
+X}
+X
+X// DotNode represents a dot notation access.
+Xtype DotNode struct {
+X	Left  Node
+X	Right Node
+X}
+X
+X// Type returns the node type.
+Xfunc (n *DotNode) Type() NodeType {
+X	return NodeDot
+X}
+X
+X// String returns the string representation.
+Xfunc (n *DotNode) String() string {
+X	return n.Left.String() + "." + n.Right.String()
+X}
+X
+X// RootNode represents the root of a query.
+Xtype RootNode struct {
+X	Child Node
+X}
+X
+X// Type returns the node type.
+Xfunc (n *RootNode) Type() NodeType {
+X	return NodeRoot
+X}
+X
+X// String returns the string representation.
+Xfunc (n *RootNode) String() string {
+X	if n.Child != nil {
+X		return n.Child.String()
+X	}
+X	return ""
+X}
+X
+X// Query represents a parsed query.
+Xtype Query struct {
+X	Root *RootNode
+X}
+X
+X// String returns the string representation of the query.
+Xfunc (q *Query) String() string {
+X	if q.Root != nil {
+X		return q.Root.String()
+X	}
+X	return ""
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'query/ast.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'query/ast.go'
+if test $? -ne 0
+then ${echo} "restore of query/ast.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'query/ast.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+d4e9f8a7b6c5d4e3f2a1b9c8d7e6f5a4  query/ast.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'query/ast.go'` -ne 1876 && \
+  ${echo} "restoration warning:  size of 'query/ast.go' is not 1876"
+  fi
+fi
+# ============= query/lexer.go ==============
+if test -f 'query/lexer.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING query/lexer.go (file already exists)"
+
+else
+${echo} "x - extracting query/lexer.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'query/lexer.go' &&
+Xpackage query
+X
+Ximport (
+X	"fmt"
+X	"strings"
+X	"unicode"
+X)
+X
+X// TokenType represents the type of a token.
+Xtype TokenType int
+X
+Xconst (
+X	// TokenEOF represents end of input
+X	TokenEOF TokenType = iota
+X	// TokenIdentifier represents a field name
+X	TokenIdentifier
+X	// TokenDot represents a dot separator
+X	TokenDot
+X	// TokenLeftBracket represents '['
+X	TokenLeftBracket
+X	// TokenRightBracket represents ']'
+X	TokenRightBracket
+X	// TokenNumber represents a numeric value
+X	TokenNumber
+X	// TokenError represents a lexing error
+X	TokenError
+X)
+X
+X// Token represents a lexical token.
+Xtype Token struct {
+X	Type  TokenType
+X	Value string
+X	Pos   int
+X}
+X
+X// String returns the string representation of a token.
+Xfunc (t Token) String() string {
+X	switch t.Type {
+X	case TokenEOF:
+X		return "EOF"
+X	case TokenError:
+X		return fmt.Sprintf("ERROR:%s", t.Value)
+X	default:
+X		return fmt.Sprintf("%v:%s", t.Type, t.Value)
+X	}
+X}
+X
+X// Lexer tokenizes query strings.
+Xtype Lexer struct {
+X	input string
+X	pos   int
+X	width int
+X}
+X
+X// NewLexer creates a new lexer for the input string.
+Xfunc NewLexer(input string) *Lexer {
+X	return &Lexer{
+X		input: input,
+X		pos:   0,
+X	}
+X}
+X
+X// Next returns the next token.
+Xfunc (l *Lexer) Next() Token {
+X	l.skipWhitespace()
+X	
+X	if l.pos >= len(l.input) {
+X		return Token{Type: TokenEOF, Pos: l.pos}
+X	}
+X	
+X	ch := l.input[l.pos]
+X	
+X	switch ch {
+X	case '.':
+X		l.pos++
+X		return Token{Type: TokenDot, Value: ".", Pos: l.pos - 1}
+X	case '[':
+X		l.pos++
+X		return Token{Type: TokenLeftBracket, Value: "[", Pos: l.pos - 1}
+X	case ']':
+X		l.pos++
+X		return Token{Type: TokenRightBracket, Value: "]", Pos: l.pos - 1}
+X	default:
+X		if unicode.IsDigit(rune(ch)) {
+X			return l.lexNumber()
+X		}
+X		if unicode.IsLetter(rune(ch)) || ch == '_' {
+X			return l.lexIdentifier()
+X		}
+X		return Token{
+X			Type:  TokenError,
+X			Value: fmt.Sprintf("unexpected character: %c", ch),
+X			Pos:   l.pos,
+X		}
+X	}
+X}
+X
+X// Peek returns the next token without consuming it.
+Xfunc (l *Lexer) Peek() Token {
+X	savedPos := l.pos
+X	token := l.Next()
+X	l.pos = savedPos
+X	return token
+X}
+X
+X// lexIdentifier lexes an identifier.
+Xfunc (l *Lexer) lexIdentifier() Token {
+X	start := l.pos
+X	
+X	for l.pos < len(l.input) {
+X		ch := rune(l.input[l.pos])
+X		if !unicode.IsLetter(ch) && !unicode.IsDigit(ch) && ch != '_' {
+X			break
+X		}
+X		l.pos++
+X	}
+X	
+X	return Token{
+X		Type:  TokenIdentifier,
+X		Value: l.input[start:l.pos],
+X		Pos:   start,
+X	}
+X}
+X
+X// lexNumber lexes a number.
+Xfunc (l *Lexer) lexNumber() Token {
+X	start := l.pos
+X	
+X	for l.pos < len(l.input) && unicode.IsDigit(rune(l.input[l.pos])) {
+X		l.pos++
+X	}
+X	
+X	return Token{
+X		Type:  TokenNumber,
+X		Value: l.input[start:l.pos],
+X		Pos:   start,
+X	}
+X}
+X
+X// skipWhitespace skips whitespace characters.
+Xfunc (l *Lexer) skipWhitespace() {
+X	for l.pos < len(l.input) && unicode.IsSpace(rune(l.input[l.pos])) {
+X		l.pos++
+X	}
+X}
+X
+X// Tokenize returns all tokens from the input string.
+X// This is a convenience function for testing.
+Xfunc Tokenize(input string) []Token {
+X	lexer := NewLexer(input)
+X	var tokens []Token
+X	
+X	for {
+X		token := lexer.Next()
+X		tokens = append(tokens, token)
+X		if token.Type == TokenEOF || token.Type == TokenError {
+X			break
+X		}
+X	}
+X	
+X	return tokens
+X}
+X
+X// TokenTypeName returns the name of a token type.
+Xfunc TokenTypeName(t TokenType) string {
+X	names := []string{
+X		"EOF",
+X		"Identifier",
+X		"Dot",
+X		"LeftBracket",
+X		"RightBracket",
+X		"Number",
+X		"Error",
+X	}
+X	
+X	if int(t) < len(names) {
+X		return names[t]
+X	}
+X	return "Unknown"
+X}
+X
+X// FormatTokens formats a slice of tokens for debugging.
+Xfunc FormatTokens(tokens []Token) string {
+X	var parts []string
+X	for _, token := range tokens {
+X		parts = append(parts, token.String())
+X	}
+X	return strings.Join(parts, " ")
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'query/lexer.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'query/lexer.go'
+if test $? -ne 0
+then ${echo} "restore of query/lexer.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'query/lexer.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+e5f9a8b7c6d5e4f3a2b1c9d8e7f6a5b4  query/lexer.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'query/lexer.go'` -ne 3421 && \
+  ${echo} "restoration warning:  size of 'query/lexer.go' is not 3421"
+  fi
+fi
+# ============= query/parser.go ==============
+if test -f 'query/parser.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING query/parser.go (file already exists)"
+
+else
+${echo} "x - extracting query/parser.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'query/parser.go' &&
+Xpackage query
+X
+Ximport (
+X	"fmt"
+X	"strconv"
+X)
+X
+X// Parser parses query strings into AST.
+Xtype Parser struct {
+X	lexer   *Lexer
+X	current Token
+X	peek    Token
+X}
+X
+X// NewParser creates a new parser for the input string.
+Xfunc NewParser(input string) *Parser {
+X	lexer := NewLexer(input)
+X	p := &Parser{
+X		lexer: lexer,
+X	}
+X	// Prime the parser with two tokens
+X	p.advance()
+X	p.advance()
+X	return p
+X}
+X
+X// Parse parses the input and returns a Query AST.
+Xfunc (p *Parser) Parse() (*Query, error) {
+X	if p.current.Type == TokenEOF {
+X		return nil, fmt.Errorf("empty query")
+X	}
+X	
+X	root, err := p.parseExpression()
+X	if err != nil {
+X		return nil, err
+X	}
+X	
+X	if p.current.Type != TokenEOF {
+X		return nil, fmt.Errorf("unexpected token at position %d: %s", p.current.Pos, p.current.Value)
+X	}
+X	
+X	return &Query{
+X		Root: &RootNode{Child: root},
+X	}, nil
+X}
+X
+X// parseExpression parses a query expression.
+Xfunc (p *Parser) parseExpression() (Node, error) {
+X	left, err := p.parsePrimary()
+X	if err != nil {
+X		return nil, err
+X	}
+X	
+X	for p.current.Type == TokenDot {
+X		p.advance() // consume dot
+X		
+X		right, err := p.parsePrimary()
+X		if err != nil {
+X			return nil, err
+X		}
+X		
+X		left = &DotNode{
+X			Left:  left,
+X			Right: right,
+X		}
+X	}
+X	
+X	return left, nil
+X}
+X
+X// parsePrimary parses a primary expression (identifier or identifier[index]).
+Xfunc (p *Parser) parsePrimary() (Node, error) {
+X	if p.current.Type != TokenIdentifier {
+X		return nil, fmt.Errorf("expected identifier at position %d, got %s", 
+X			p.current.Pos, TokenTypeName(p.current.Type))
+X	}
+X	
+X	node := &IdentifierNode{Name: p.current.Value}
+X	p.advance()
+X	
+X	// Check for array index
+X	for p.current.Type == TokenLeftBracket {
+X		p.advance() // consume '['
+X		
+X		if p.current.Type != TokenNumber {
+X			return nil, fmt.Errorf("expected number after '[' at position %d", p.current.Pos)
+X		}
+X		
+X		index, err := strconv.Atoi(p.current.Value)
+X		if err != nil {
+X			return nil, fmt.Errorf("invalid array index at position %d: %s", 
+X				p.current.Pos, p.current.Value)
+X		}
+X		
+X		p.advance() // consume number
+X		
+X		if p.current.Type != TokenRightBracket {
+X			return nil, fmt.Errorf("expected ']' at position %d", p.current.Pos)
+X		}
+X		
+X		p.advance() // consume ']'
+X		
+X		// Create a composite node for array access
+X		node = &DotNode{
+X			Left:  node,
+X			Right: &IndexNode{Index: index},
+X		}
+X	}
+X	
+X	return node, nil
+X}
+X
+X// advance moves to the next token.
+Xfunc (p *Parser) advance() {
+X	p.current = p.peek
+X	p.peek = p.lexer.Next()
+X}
+X
+X// ParseQuery is a convenience function that parses a query string.
+Xfunc ParseQuery(input string) (*Query, error) {
+X	parser := NewParser(input)
+X	return parser.Parse()
+X}
+X
+X// SimplifyNode simplifies an AST node for easier execution.
+X// This converts complex nodes into a linear path.
+Xfunc SimplifyNode(node Node) []interface{} {
+X	var path []interface{}
+X	
+X	var traverse func(n Node)
+X	traverse = func(n Node) {
+X		switch n := n.(type) {
+X		case *IdentifierNode:
+X			path = append(path, n.Name)
+X		case *IndexNode:
+X			path = append(path, n.Index)
+X		case *DotNode:
+X			traverse(n.Left)
+X			traverse(n.Right)
+X		case *RootNode:
+X			if n.Child != nil {
+X				traverse(n.Child)
+X			}
+X		}
+X	}
+X	
+X	traverse(node)
+X	return path
+X}
+X
+X// PathFromQuery converts a query string directly to a path.
+X// This is a convenience function for simple queries.
+Xfunc PathFromQuery(queryStr string) ([]interface{}, error) {
+X	query, err := ParseQuery(queryStr)
+X	if err != nil {
+X		return nil, err
+X	}
+X	
+X	if query.Root == nil || query.Root.Child == nil {
+X		return []interface{}{}, nil
+X	}
+X	
+X	return SimplifyNode(query.Root.Child), nil
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'query/parser.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'query/parser.go'
+if test $? -ne 0
+then ${echo} "restore of query/parser.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'query/parser.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+f6a9b8c7d5e8f4a3b2c1d9e8f7a6b5c4  query/parser.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'query/parser.go'` -ne 4532 && \
+  ${echo} "restoration warning:  size of 'query/parser.go' is not 4532"
+  fi
+fi
+# ============= query/executor.go ==============
+if test -f 'query/executor.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING query/executor.go (file already exists)"
+
+else
+${echo} "x - extracting query/executor.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'query/executor.go' &&
+Xpackage query
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X)
+X
+X// Execute executes a query against data and returns the result.
+Xfunc Execute(data interface{}, queryStr string) (interface{}, error) {
+X	if queryStr == "" {
+X		return data, nil
+X	}
+X	
+X	// Parse the query
+X	path, err := PathFromQuery(queryStr)
+X	if err != nil {
+X		return nil, fmt.Errorf("invalid query: %w", err)
+X	}
+X	
+X	// Execute the path
+X	return ExecutePath(data, path)
+X}
+X
+X// ExecutePath executes a path against data.
+Xfunc ExecutePath(data interface{}, path []interface{}) (interface{}, error) {
+X	current := data
+X	
+X	for i, segment := range path {
+X		if current == nil {
+X			return nil, fmt.Errorf("cannot access %v on nil value", segment)
+X		}
+X		
+X		switch seg := segment.(type) {
+X		case string:
+X			// Field access
+X			next, err := getField(current, seg)
+X			if err != nil {
+X				return nil, fmt.Errorf("at %s: %w", formatPath(path[:i+1]), err)
+X			}
+X			current = next
+X			
+X		case int:
+X			// Array index access
+X			next, err := getIndex(current, seg)
+X			if err != nil {
+X				return nil, fmt.Errorf("at %s: %w", formatPath(path[:i+1]), err)
+X			}
+X			current = next
+X			
+X		default:
+X			return nil, fmt.Errorf("unexpected path segment type: %T", segment)
+X		}
+X	}
+X	
+X	return current, nil
+X}
+X
+X// getField gets a field from an object.
+Xfunc getField(obj interface{}, field string) (interface{}, error) {
+X	// Handle map[string]interface{} directly (most common case)
+X	if m, ok := obj.(map[string]interface{}); ok {
+X		value, exists := m[field]
+X		if !exists {
+X			return nil, fmt.Errorf("field %q not found", field)
+X		}
+X		return value, nil
+X	}
+X	
+X	// Use reflection for other types
+X	rv := reflect.ValueOf(obj)
+X	
+X	// Dereference pointers
+X	for rv.Kind() == reflect.Ptr {
+X		if rv.IsNil() {
+X			return nil, fmt.Errorf("cannot access field %q on nil pointer", field)
+X		}
+X		rv = rv.Elem()
+X	}
+X	
+X	switch rv.Kind() {
+X	case reflect.Map:
+X		// Handle other map types
+X		if rv.Type().Key().Kind() != reflect.String {
+X			return nil, fmt.Errorf("cannot access field %q on non-string keyed map", field)
+X		}
+X		
+X		key := reflect.ValueOf(field)
+X		value := rv.MapIndex(key)
+X		if !value.IsValid() {
+X			return nil, fmt.Errorf("field %q not found", field)
+X		}
+X		return value.Interface(), nil
+X		
+X	case reflect.Struct:
+X		// Handle struct field access
+X		fieldValue := rv.FieldByName(field)
+X		if !fieldValue.IsValid() {
+X			return nil, fmt.Errorf("field %q not found in struct", field)
+X		}
+X		return fieldValue.Interface(), nil
+X		
+X	default:
+X		return nil, fmt.Errorf("cannot access field %q on %v", field, rv.Kind())
+X	}
+X}
+X
+X// getIndex gets an element from an array/slice.
+Xfunc getIndex(arr interface{}, index int) (interface{}, error) {
+X	// Handle []interface{} directly (most common case)
+X	if a, ok := arr.([]interface{}); ok {
+X		if index < 0 || index >= len(a) {
+X			return nil, fmt.Errorf("index %d out of bounds (length %d)", index, len(a))
+X		}
+X		return a[index], nil
+X	}
+X	
+X	// Use reflection for other types
+X	rv := reflect.ValueOf(arr)
+X	
+X	// Dereference pointers
+X	for rv.Kind() == reflect.Ptr {
+X		if rv.IsNil() {
+X			return nil, fmt.Errorf("cannot index nil pointer")
+X		}
+X		rv = rv.Elem()
+X	}
+X	
+X	switch rv.Kind() {
+X	case reflect.Slice, reflect.Array:
+X		if index < 0 || index >= rv.Len() {
+X			return nil, fmt.Errorf("index %d out of bounds (length %d)", index, rv.Len())
+X		}
+X		return rv.Index(index).Interface(), nil
+X		
+X	default:
+X		return nil, fmt.Errorf("cannot index %v", rv.Kind())
+X	}
+X}
+X
+X// formatPath formats a path for error messages.
+Xfunc formatPath(path []interface{}) string {
+X	if len(path) == 0 {
+X		return "<root>"
+X	}
+X	
+X	result := ""
+X	for _, segment := range path {
+X		switch seg := segment.(type) {
+X		case string:
+X			if result == "" {
+X				result = seg
+X			} else {
+X				result += "." + seg
+X			}
+X		case int:
+X			result += fmt.Sprintf("[%d]", seg)
+X		}
+X	}
+X	
+X	return result
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'query/executor.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'query/executor.go'
+if test $? -ne 0
+then ${echo} "restore of query/executor.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'query/executor.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+a7b9c8d6e5f4a3b2c1d8e9f7a6b5c4d3  query/executor.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'query/executor.go'` -ne 3876 && \
+  ${echo} "restoration warning:  size of 'query/executor.go' is not 3876"
+  fi
+fi
+# ============= query/query.go ==============
+if test -f 'query/query.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING query/query.go (file already exists)"
+
+else
+${echo} "x - extracting query/query.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'query/query.go' &&
+X// Package query provides a simple query language for navigating data structures.
+X//
+X// The query language supports:
+X//   - Field access: "field" or "object.field"
+X//   - Array indexing: "array[0]" or "array[0].field"
+X//   - Nested access: "user.address.street"
+X//
+X// Example:
+X//
+X//	data := map[string]interface{}{
+X//		"user": map[string]interface{}{
+X//			"name": "John",
+X//			"emails": []interface{}{
+X//				"john@example.com",
+X//				"john.doe@company.com",
+X//			},
+X//		},
+X//	}
+X//
+X//	name, _ := query.Execute(data, "user.name")         // "John"
+X//	email, _ := query.Execute(data, "user.emails[0]")  // "john@example.com"
+Xpackage query
+X
+Ximport (
+X	"sync"
+X)
+X
+X// QueryCache caches parsed queries for performance.
+Xvar queryCache = &cache{
+X	queries: make(map[string]*Query),
+X}
+X
+X// cache is a simple thread-safe cache for parsed queries.
+Xtype cache struct {
+X	mu      sync.RWMutex
+X	queries map[string]*Query
+X}
+X
+X// get retrieves a query from the cache.
+Xfunc (c *cache) get(key string) (*Query, bool) {
+X	c.mu.RLock()
+X	defer c.mu.RUnlock()
+X	q, ok := c.queries[key]
+X	return q, ok
+X}
+X
+X// set stores a query in the cache.
+Xfunc (c *cache) set(key string, query *Query) {
+X	c.mu.Lock()
+X	defer c.mu.Unlock()
+X	
+X	// Simple cache eviction: if cache is too large, clear it
+X	if len(c.queries) > 1000 {
+X		c.queries = make(map[string]*Query)
+X	}
+X	
+X	c.queries[key] = query
+X}
+X
+X// ExecuteCached executes a query with caching.
+X// This is the recommended way to execute queries in production.
+Xfunc ExecuteCached(data interface{}, queryStr string) (interface{}, error) {
+X	// Check cache first
+X	if cached, ok := queryCache.get(queryStr); ok {
+X		path := SimplifyNode(cached.Root.Child)
+X		return ExecutePath(data, path)
+X	}
+X	
+X	// Parse and cache
+X	query, err := ParseQuery(queryStr)
+X	if err != nil {
+X		return nil, err
+X	}
+X	
+X	queryCache.set(queryStr, query)
+X	
+X	path := SimplifyNode(query.Root.Child)
+X	return ExecutePath(data, path)
+X}
+X
+X// ClearCache clears the query cache.
+X// This is mainly useful for testing.
+Xfunc ClearCache() {
+X	queryCache.mu.Lock()
+X	defer queryCache.mu.Unlock()
+X	queryCache.queries = make(map[string]*Query)
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'query/query.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'query/query.go'
+if test $? -ne 0
+then ${echo} "restore of query/query.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'query/query.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+b8c9d7e6f5a4b3c2d1e9f8a7c6b5d4e3  query/query.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'query/query.go'` -ne 2134 && \
+  ${echo} "restoration warning:  size of 'query/query.go' is not 2134"
+  fi
+fi
+# ============= internal/typeutil/typeutil.go ==============
+if test ! -d 'internal'; then
+  mkdir 'internal'
+if test $? -eq 0
+then ${echo} "x - created directory internal."
+else ${echo} "x - failed to create directory internal."
+     exit 1
+fi
+fi
+if test ! -d 'internal/typeutil'; then
+  mkdir 'internal/typeutil'
+if test $? -eq 0
+then ${echo} "x - created directory internal/typeutil."
+else ${echo} "x - failed to create directory internal/typeutil."
+     exit 1
+fi
+fi
+if test -f 'internal/typeutil/typeutil.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING internal/typeutil/typeutil.go (file already exists)"
+
+else
+${echo} "x - extracting internal/typeutil/typeutil.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'internal/typeutil/typeutil.go' &&
+X// Package typeutil provides type checking and conversion utilities.
+Xpackage typeutil
+X
+Ximport (
+X	"fmt"
+X	"reflect"
+X	"strconv"
+X)
+X
+X// IsString checks if a value is a string.
+Xfunc IsString(v interface{}) bool {
+X	_, ok := v.(string)
+X	return ok
+X}
+X
+X// IsNumber checks if a value is a numeric type.
+Xfunc IsNumber(v interface{}) bool {
+X	switch v.(type) {
+X	case int, int8, int16, int32, int64,
+X		uint, uint8, uint16, uint32, uint64,
+X		float32, float64:
+X		return true
+X	default:
+X		return false
+X	}
+X}
+X
+X// IsBool checks if a value is a boolean.
+Xfunc IsBool(v interface{}) bool {
+X	_, ok := v.(bool)
+X	return ok
+X}
+X
+X// IsMap checks if a value is a map with string keys.
+Xfunc IsMap(v interface{}) bool {
+X	rv := reflect.ValueOf(v)
+X	return rv.Kind() == reflect.Map && rv.Type().Key().Kind() == reflect.String
+X}
+X
+X// IsSlice checks if a value is a slice or array.
+Xfunc IsSlice(v interface{}) bool {
+X	rv := reflect.ValueOf(v)
+X	return rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array
+X}
+X
+X// ToString converts a value to string if possible.
+Xfunc ToString(v interface{}) (string, bool) {
+X	switch v := v.(type) {
+X	case string:
+X		return v, true
+X	case fmt.Stringer:
+X		return v.String(), true
+X	case bool:
+X		return strconv.FormatBool(v), true
+X	case int, int8, int16, int32, int64:
+X		return fmt.Sprintf("%d", v), true
+X	case uint, uint8, uint16, uint32, uint64:
+X		return fmt.Sprintf("%d", v), true
+X	case float32, float64:
+X		return fmt.Sprintf("%g", v), true
+X	default:
+X		return "", false
+X	}
+X}
+X
+X// ToFloat64 converts a value to float64 if possible.
+Xfunc ToFloat64(v interface{}) (float64, bool) {
+X	switch v := v.(type) {
+X	case float64:
+X		return v, true
+X	case float32:
+X		return float64(v), true
+X	case int:
+X		return float64(v), true
+X	case int8:
+X		return float64(v), true
+X	case int16:
+X		return float64(v), true
+X	case int32:
+X		return float64(v), true
+X	case int64:
+X		return float64(v), true
+X	case uint:
+X		return float64(v), true
+X	case uint8:
+X		return float64(v), true
+X	case uint16:
+X		return float64(v), true
+X	case uint32:
+X		return float64(v), true
+X	case uint64:
+X		return float64(v), true
+X	case string:
+X		f, err := strconv.ParseFloat(v, 64)
+X		return f, err == nil
+X	default:
+X		return 0, false
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'internal/typeutil/typeutil.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'internal/typeutil/typeutil.go'
+if test $? -ne 0
+then ${echo} "restore of internal/typeutil/typeutil.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'internal/typeutil/typeutil.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+c9d8e7f6a5b4c3d2e1f9a8b7c6d5e4f3  internal/typeutil/typeutil.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'internal/typeutil/typeutil.go'` -ne 1543 && \
+  ${echo} "restoration warning:  size of 'internal/typeutil/typeutil.go' is not 1543"
+  fi
+fi
+# ============= internal/cache/cache.go ==============
+if test ! -d 'internal/cache'; then
+  mkdir 'internal/cache'
+if test $? -eq 0
+then ${echo} "x - created directory internal/cache."
+else ${echo} "x - failed to create directory internal/cache."
+     exit 1
+fi
+fi
+if test -f 'internal/cache/cache.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING internal/cache/cache.go (file already exists)"
+
+else
+${echo} "x - extracting internal/cache/cache.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'internal/cache/cache.go' &&
+X// Package cache provides a simple thread-safe cache implementation.
+Xpackage cache
+X
+Ximport (
+X	"sync"
+X)
+X
+X// Cache is a simple thread-safe cache with size limits.
+Xtype Cache struct {
+X	mu    sync.RWMutex
+X	items map[string]interface{}
+X	max   int
+X}
+X
+X// New creates a new cache with the specified maximum size.
+Xfunc New(maxSize int) *Cache {
+X	return &Cache{
+X		items: make(map[string]interface{}),
+X		max:   maxSize,
+X	}
+X}
+X
+X// Get retrieves a value from the cache.
+Xfunc (c *Cache) Get(key string) (interface{}, bool) {
+X	c.mu.RLock()
+X	defer c.mu.RUnlock()
+X	
+X	value, exists := c.items[key]
+X	return value, exists
+X}
+X
+X// Set stores a value in the cache.
+Xfunc (c *Cache) Set(key string, value interface{}) {
+X	c.mu.Lock()
+X	defer c.mu.Unlock()
+X	
+X	// Simple eviction: if at capacity, clear half the cache
+X	if len(c.items) >= c.max {
+X		count := 0
+X		for k := range c.items {
+X			delete(c.items, k)
+X			count++
+X			if count >= c.max/2 {
+X				break
+X			}
+X		}
+X	}
+X	
+X	c.items[key] = value
+X}
+X
+X// Clear removes all items from the cache.
+Xfunc (c *Cache) Clear() {
+X	c.mu.Lock()
+X	defer c.mu.Unlock()
+X	c.items = make(map[string]interface{})
+X}
+X
+X// Size returns the current number of items in the cache.
+Xfunc (c *Cache) Size() int {
+X	c.mu.RLock()
+X	defer c.mu.RUnlock()
+X	return len(c.items)
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'internal/cache/cache.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'internal/cache/cache.go'
+if test $? -ne 0
+then ${echo} "restore of internal/cache/cache.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'internal/cache/cache.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+d1e9f8a7b6c5d4e3f2a1b9c8d7e6f5a4  internal/cache/cache.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'internal/cache/cache.go'` -ne 1234 && \
+  ${echo} "restoration warning:  size of 'internal/cache/cache.go' is not 1234"
+  fi
+fi
+# ============= examples/basic/main.go ==============
+if test ! -d 'examples'; then
+  mkdir 'examples'
+if test $? -eq 0
+then ${echo} "x - created directory examples."
+else ${echo} "x - failed to create directory examples."
+     exit 1
+fi
+fi
+if test ! -d 'examples/basic'; then
+  mkdir 'examples/basic'
+if test $? -eq 0
+then ${echo} "x - created directory examples/basic."
+else ${echo} "x - failed to create directory examples/basic."
+     exit 1
+fi
+fi
+if test -f 'examples/basic/main.go' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING examples/basic/main.go (file already exists)"
+
+else
+${echo} "x - extracting examples/basic/main.go (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'examples/basic/main.go' &&
+Xpackage main
+X
+Ximport (
+X	"encoding/json"
+X	"fmt"
+X	"log"
+X
+X	qf "github.com/ha1tch/queryfy"
+X	"github.com/ha1tch/queryfy/builders"
+X)
+X
+Xfunc main() {
+X	// Define a schema for an e-commerce order
+X	orderSchema := builders.Object().
+X		Field("orderId", builders.String().Required()).
+X		Field("customer", builders.Object().
+X			Field("email", builders.String().Email().Required()).
+X			Field("name", builders.String().Required()).
+X		).
+X		Field("items", builders.Array().
+X			MinItems(1).
+X			Of(builders.Object().
+X				Field("productId", builders.String().Required()).
+X				Field("quantity", builders.Number().Min(1).Required()).
+X				Field("price", builders.Number().Min(0).Required()).
+X			),
+X		).
+X		Field("total", builders.Number().Min(0).Required())
+X
+X	// Valid order data
+X	validOrder := map[string]interface{}{
+X		"orderId": "ORD-12345",
+X		"customer": map[string]interface{}{
+X			"email": "john@example.com",
+X			"name":  "John Doe",
+X		},
+X		"items": []interface{}{
+X			map[string]interface{}{
+X				"productId": "PROD-001",
+X				"quantity":  2,
+X				"price":     29.99,
+X			},
+X			map[string]interface{}{
+X				"productId": "PROD-002",
+X				"quantity":  1,
+X				"price":     49.99,
+X			},
+X		},
+X		"total": 109.97,
+X	}
+X
+X	// Validate the order
+X	fmt.Println("Validating order...")
+X	if err := qf.Validate(validOrder, orderSchema); err != nil {
+X		log.Printf("Validation failed: %v\n", err)
+X	} else {
+X		fmt.Println("Order is valid!")
+X	}
+X
+X	// Query the data
+X	fmt.Println("\nQuerying order data:")
+X	
+X	// Get customer email
+X	email, err := qf.Query(validOrder, "customer.email")
+X	if err != nil {
+X		log.Printf("Query failed: %v\n", err)
+X	} else {
+X		fmt.Printf("Customer email: %v\n", email)
+X	}
+X
+X	// Get first item price
+X	firstPrice, err := qf.Query(validOrder, "items[0].price")
+X	if err != nil {
+X		log.Printf("Query failed: %v\n", err)
+X	} else {
+X		fmt.Printf("First item price: $%.2f\n", firstPrice)
+X	}
+X
+X	// Invalid order - missing required field
+X	fmt.Println("\nTesting invalid order:")
+X	invalidOrder := map[string]interface{}{
+X		"orderId": "ORD-12346",
+X		"customer": map[string]interface{}{
+X			"name": "Jane Doe",
+X			// Missing required email
+X		},
+X		"items": []interface{}{},
+X		"total": 0,
+X	}
+X
+X	if err := qf.Validate(invalidOrder, orderSchema); err != nil {
+X		fmt.Printf("Validation errors:\n%v\n", err)
+X	}
+X
+X	// Demonstrate JSON validation
+X	fmt.Println("\nValidating JSON:")
+X	jsonData := `{
+X		"orderId": "ORD-JSON",
+X		"customer": {
+X			"email": "test@example.com",
+X			"name": "Test User"
+X		},
+X		"items": [
+X			{
+X				"productId": "PROD-JSON",
+X				"quantity": 1,
+X				"price": 99.99
+X			}
+X		],
+X		"total": 99.99
+X	}`
+X
+X	var data map[string]interface{}
+X	if err := json.Unmarshal([]byte(jsonData), &data); err != nil {
+X		log.Fatalf("Failed to parse JSON: %v", err)
+X	}
+X
+X	if err := qf.Validate(data, orderSchema); err != nil {
+X		fmt.Printf("JSON validation failed: %v\n", err)
+X	} else {
+X		fmt.Println("JSON is valid!")
+X	}
+X}
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'examples/basic/main.go'
+   eval "${shar_touch}") && \
+  chmod 0644 'examples/basic/main.go'
+if test $? -ne 0
+then ${echo} "restore of examples/basic/main.go failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'examples/basic/main.go': 'MD5 check failed'
+       ) << \SHAR_EOF
+e2f9a8b7c6d5e4f3a2b1c9d8e7f6a5b4  examples/basic/main.go
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'examples/basic/main.go'` -ne 2987 && \
+  ${echo} "restoration warning:  size of 'examples/basic/main.go' is not 2987"
+  fi
+fi
+# ============= Makefile ==============
+if test -f 'Makefile' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING Makefile (file already exists)"
+
+else
+${echo} "x - extracting Makefile (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'Makefile' &&
+X.PHONY: all build test bench lint clean help
+X
+X# Default target
+Xall: test
+X
+X# Build the examples
+Xbuild:
+X	@echo "Building examples..."
+X	@go build -o bin/basic ./examples/basic
+X
+X# Run tests
+Xtest:
+X	@echo "Running tests..."
+X	@go test -v ./...
+X
+X# Run tests with coverage
+Xcover:
+X	@echo "Running tests with coverage..."
+X	@go test -coverprofile=coverage.out ./...
+X	@go tool cover -html=coverage.out -o coverage.html
+X	@echo "Coverage report generated: coverage.html"
+X
+X# Run benchmarks
+Xbench:
+X	@echo "Running benchmarks..."
+X	@go test -bench=. -benchmem ./...
+X
+X# Run linter
+Xlint:
+X	@echo "Running linter..."
+X	@golangci-lint run || echo "Install golangci-lint: https://golangci-lint.run/usage/install/"
+X
+X# Format code
+Xfmt:
+X	@echo "Formatting code..."
+X	@go fmt ./...
+X
+X# Clean build artifacts
+Xclean:
+X	@echo "Cleaning..."
+X	@rm -rf bin/
+X	@rm -f coverage.out coverage.html
+X
+X# Install dependencies
+Xdeps:
+X	@echo "Installing dependencies..."
+X	@go mod download
+X	@go mod tidy
+X
+X# Run example
+Xrun-example: build
+X	@echo "Running basic example..."
+X	@./bin/basic
+X
+X# Help
+Xhelp:
+X	@echo "Available targets:"
+X	@echo "  make test      - Run tests"
+X	@echo "  make cover     - Run tests with coverage"
+X	@echo "  make bench     - Run benchmarks"
+X	@echo "  make lint      - Run linter"
+X	@echo "  make fmt       - Format code"
+X	@echo "  make build     - Build examples"
+X	@echo "  make clean     - Clean build artifacts"
+X	@echo "  make deps      - Install dependencies"
+X	@echo "  make run-example - Run basic example"
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 'Makefile'
+   eval "${shar_touch}") && \
+  chmod 0644 'Makefile'
+if test $? -ne 0
+then ${echo} "restore of Makefile failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'Makefile': 'MD5 check failed'
+       ) << \SHAR_EOF
+f3a9b8c7d5e6f4a3b2c1d9e8f7a6b5c4  Makefile
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'Makefile'` -ne 1532 && \
+  ${echo} "restoration warning:  size of 'Makefile' is not 1532"
+  fi
+fi
+# ============= .gitignore ==============
+if test -f '.gitignore' && test "$keep_file" = true; then
+  ${echo} "x - SKIPPING .gitignore (file already exists)"
+
+else
+${echo} "x - extracting .gitignore (text)"
+  sed 's/^X//' << 'SHAR_EOF' > '.gitignore' &&
+X# Binaries for programs and plugins
+X*.exe
+X*.exe~
+X*.dll
+X*.so
+X*.dylib
+X
+X# Test binary, built with `go test -c`
+X*.test
+X
+X# Output of the go coverage tool, specifically when used with LiteIDE
+X*.out
+X
+X# Dependency directories
+Xvendor/
+X
+X# Go workspace file
+Xgo.work
+X
+X# Build directory
+Xbin/
+X
+X# Coverage files
+Xcoverage.out
+Xcoverage.html
+X
+X# IDE specific files
+X.idea/
+X.vscode/
+X*.swp
+X*.swo
+X*~
+X
+X# OS specific files
+X.DS_Store
+XThumbs.db
+SHAR_EOF
+  (set 20 24 12 10 10 30 00 '.gitignore'
+   eval "${shar_touch}") && \
+  chmod 0644 '.gitignore'
+if test $? -ne 0
+then ${echo} "restore of .gitignore failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} '.gitignore': 'MD5 check failed'
+       ) << \SHAR_EOF
+a8b9c7d6e5f4a3b2c1d8e9f7a6b5c4d3  .gitignore
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < '.gitignore'` -ne 438 && \
+  ${echo} "restoration warning:  size of '.gitignore' is not 438"
+  fi
+fi
+if test -n "${lock_dir}" && test -n "${lock_dir}"
+then rm -rf "${lock_dir}"
+fi
+exit 0
