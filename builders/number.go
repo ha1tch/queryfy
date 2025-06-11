@@ -3,7 +3,6 @@ package builders
 import (
 	"fmt"
 	"math"
-	"reflect"
 
 	"github.com/ha1tch/queryfy"
 )
@@ -119,12 +118,12 @@ func (s *NumberSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 		return nil
 	}
 
-	// Type validation
-	if !queryfy.ValidateValue(value, queryfy.TypeNumber, ctx) {
+	// Get numeric value
+	num, ok := toFloat64WithMode(value, ctx.Mode())
+	if !ok {
+		ctx.AddError(fmt.Sprintf("expected number, got %T", value), value)
 		return nil
 	}
-
-	num := toFloat64(value)
 
 	// Range validation
 	if s.min != nil && num < *s.min {
@@ -142,10 +141,10 @@ func (s *NumberSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 		}
 	}
 
-	// Custom validators
+	// Custom validators - pass the converted number
 	for _, validator := range s.validators {
-		if err := validator(value); err != nil {
-			ctx.AddError(err.Error(), value)
+		if err := validator(num); err != nil {
+			ctx.AddError(err.Error(), num)
 		}
 	}
 
@@ -159,21 +158,72 @@ func (s *NumberSchema) Type() queryfy.SchemaType {
 
 // toFloat64 converts various numeric types to float64.
 func toFloat64(value interface{}) float64 {
-	v := reflect.ValueOf(value)
-	switch v.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return float64(v.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return float64(v.Uint())
-	case reflect.Float32, reflect.Float64:
-		return v.Float()
+	switch v := value.(type) {
+	case float64:
+		return v
+	case float32:
+		return float64(v)
+	case int:
+		return float64(v)
+	case int8:
+		return float64(v)
+	case int16:
+		return float64(v)
+	case int32:
+		return float64(v)
+	case int64:
+		return float64(v)
+	case uint:
+		return float64(v)
+	case uint8:
+		return float64(v)
+	case uint16:
+		return float64(v)
+	case uint32:
+		return float64(v)
+	case uint64:
+		return float64(v)
 	default:
-		// Try string conversion in loose mode
-		if str, ok := value.(string); ok {
-			if num, ok := queryfy.ConvertStringToNumber(str); ok {
-				return num
-			}
-		}
 		return 0
 	}
+}
+
+// toFloat64WithMode converts value to float64 considering validation mode.
+func toFloat64WithMode(value interface{}, mode queryfy.ValidationMode) (float64, bool) {
+	// Try direct numeric conversion first
+	switch v := value.(type) {
+	case float64:
+		return v, true
+	case float32:
+		return float64(v), true
+	case int:
+		return float64(v), true
+	case int8:
+		return float64(v), true
+	case int16:
+		return float64(v), true
+	case int32:
+		return float64(v), true
+	case int64:
+		return float64(v), true
+	case uint:
+		return float64(v), true
+	case uint8:
+		return float64(v), true
+	case uint16:
+		return float64(v), true
+	case uint32:
+		return float64(v), true
+	case uint64:
+		return float64(v), true
+	}
+
+	// In loose mode, try string conversion
+	if mode == queryfy.Loose {
+		if str, ok := value.(string); ok {
+			return queryfy.ConvertStringToNumber(str)
+		}
+	}
+
+	return 0, false
 }

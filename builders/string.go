@@ -17,6 +17,7 @@ type StringSchema struct {
 	patternStr string
 	enum       []string
 	validators []queryfy.ValidatorFunc
+	formatType string // "email", "url", "uuid", or ""
 }
 
 // String creates a new string schema builder.
@@ -88,17 +89,19 @@ func (s *StringSchema) Enum(values ...string) *StringSchema {
 
 // Email validates that the string is a valid email address.
 func (s *StringSchema) Email() *StringSchema {
-	// Simple email regex - not RFC compliant but good enough for most cases
+	s.formatType = "email"
 	return s.Pattern(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 }
 
 // URL validates that the string is a valid URL.
 func (s *StringSchema) URL() *StringSchema {
+	s.formatType = "url"
 	return s.Pattern(`^https?://[^\s/$.?#].[^\s]*$`)
 }
 
 // UUID validates that the string is a valid UUID.
 func (s *StringSchema) UUID() *StringSchema {
+	s.formatType = "uuid"
 	return s.Pattern(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 }
 
@@ -114,17 +117,22 @@ func (s *StringSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 		return nil
 	}
 
-	// Type validation
-	if !queryfy.ValidateValue(value, queryfy.TypeString, ctx) {
-		return nil
-	}
+	// In loose mode, try to convert to string first
+	var str string
+	var ok bool
 
-	str, _ := value.(string)
-
-	// If loose mode, try to convert
-	if ctx.Mode() == queryfy.Loose && str == "" {
-		if converted, ok := queryfy.ConvertToString(value); ok {
-			str = converted
+	if ctx.Mode() == queryfy.Loose {
+		str, ok = queryfy.ConvertToString(value)
+		if !ok {
+			ctx.AddError(fmt.Sprintf("cannot convert %T to string", value), value)
+			return nil
+		}
+	} else {
+		// Strict mode - must be a string
+		str, ok = value.(string)
+		if !ok {
+			ctx.AddError(fmt.Sprintf("expected string, got %T", value), value)
+			return nil
 		}
 	}
 
@@ -139,13 +147,16 @@ func (s *StringSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 
 	// Pattern validation
 	if s.pattern != nil && !s.pattern.MatchString(str) {
-		msg := fmt.Sprintf("must match pattern %s", s.patternStr)
-		if s.patternStr == `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` {
+		var msg string
+		switch s.formatType {
+		case "email":
 			msg = "must be a valid email address"
-		} else if s.patternStr == `^https?://[^\s/$.?#].[^\s]*$` {
+		case "url":
 			msg = "must be a valid URL"
-		} else if s.patternStr == `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$` {
+		case "uuid":
 			msg = "must be a valid UUID"
+		default:
+			msg = fmt.Sprintf("must match pattern %s", s.patternStr)
 		}
 		ctx.AddError(msg, str)
 	}

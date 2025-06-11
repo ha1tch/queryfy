@@ -64,7 +64,10 @@ func NewValidator(schema Schema) *Validator {
 
 // Compile pre-compiles a schema for better performance when validating
 // multiple times. For v0.1.0, this is a no-op that returns the schema as-is.
+// Future versions will implement actual compilation optimizations.
 func Compile(schema Schema) Schema {
+	// TODO: In v0.2.0, this will pre-compile regex patterns
+	// and optimize validation paths
 	return schema
 }
 

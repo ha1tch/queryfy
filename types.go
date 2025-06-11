@@ -18,6 +18,8 @@ const (
 	TypeAny SchemaType = "any"
 	// TypeCustom represents a custom validator
 	TypeCustom SchemaType = "custom"
+	// TypeComposite represents a composite schema (AND/OR/NOT)
+	TypeComposite SchemaType = "composite"
 )
 
 // ValidationMode determines how strict the validation is.

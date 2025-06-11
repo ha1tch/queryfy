@@ -12,8 +12,9 @@ import (
 // ObjectSchema validates object/map values.
 type ObjectSchema struct {
 	queryfy.BaseSchema
-	fields     map[string]queryfy.Schema
-	validators []queryfy.ValidatorFunc
+	fields         map[string]queryfy.Schema
+	requiredFields map[string]bool
+	validators     []queryfy.ValidatorFunc
 }
 
 // Object creates a new object schema builder.
@@ -22,17 +23,18 @@ func Object() *ObjectSchema {
 		BaseSchema: queryfy.BaseSchema{
 			SchemaType: queryfy.TypeObject,
 		},
-		fields: make(map[string]queryfy.Schema),
+		fields:         make(map[string]queryfy.Schema),
+		requiredFields: make(map[string]bool),
 	}
 }
 
-// Required marks the field as required.
+// Required marks the object itself as required.
 func (s *ObjectSchema) Required() *ObjectSchema {
 	s.SetRequired(true)
 	return s
 }
 
-// Optional marks the field as optional (default).
+// Optional marks the object as optional (default).
 func (s *ObjectSchema) Optional() *ObjectSchema {
 	s.SetRequired(false)
 	return s
@@ -47,24 +49,28 @@ func (s *ObjectSchema) Nullable() *ObjectSchema {
 // Field adds a field schema to the object.
 func (s *ObjectSchema) Field(name string, schema queryfy.Schema) *ObjectSchema {
 	s.fields[name] = schema
+	// Check if the field's schema marks it as required
+	if requirer, ok := schema.(interface{ IsRequired() bool }); ok && requirer.IsRequired() {
+		s.requiredFields[name] = true
+	}
 	return s
 }
 
 // Fields adds multiple field schemas at once.
 func (s *ObjectSchema) Fields(fields map[string]queryfy.Schema) *ObjectSchema {
 	for name, schema := range fields {
-		s.fields[name] = schema
+		s.Field(name, schema)
 	}
 	return s
 }
 
 // RequiredFields marks specific fields as required.
+// This overrides the required status set on individual field schemas.
 func (s *ObjectSchema) RequiredFields(names ...string) *ObjectSchema {
 	for _, name := range names {
+		s.requiredFields[name] = true
+		// Also update the field schema if possible
 		if schema, ok := s.fields[name]; ok {
-			// This is a bit tricky since we need to modify the schema
-			// For now, we'll assume schemas have a SetRequired method
-			// In practice, we might need a wrapper or different approach
 			if setter, ok := schema.(interface{ SetRequired(bool) }); ok {
 				setter.SetRequired(true)
 			}
@@ -97,19 +103,30 @@ func (s *ObjectSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 		return nil
 	}
 
+	// Check required fields first
+	for fieldName, required := range s.requiredFields {
+		if required {
+			if _, exists := objMap[fieldName]; !exists {
+				ctx.WithPath(fieldName, func() {
+					ctx.AddError("field is required", nil)
+				})
+			}
+		}
+	}
+
 	// Validate each defined field
 	for fieldName, fieldSchema := range s.fields {
 		fieldValue, exists := objMap[fieldName]
 
 		ctx.WithPath(fieldName, func() {
-			if !exists {
-				// Check if field is required
-				if isRequired(fieldSchema) {
-					ctx.AddError("field is required", nil)
-				}
-			} else {
+			if exists {
 				// Validate the field value
 				fieldSchema.Validate(fieldValue, ctx)
+			} else if s.requiredFields[fieldName] {
+				// Already handled above, skip
+			} else if isRequired(fieldSchema) {
+				// Field schema itself says it's required
+				ctx.AddError("field is required", nil)
 			}
 		})
 	}
