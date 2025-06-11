@@ -1,3 +1,4 @@
+// types.go - Updated with DateTime type
 package queryfy
 
 // SchemaType represents the type of a schema.
@@ -20,6 +21,8 @@ const (
 	TypeCustom SchemaType = "custom"
 	// TypeComposite represents a composite schema (AND/OR/NOT)
 	TypeComposite SchemaType = "composite"
+	// TypeDateTime represents a date/time schema
+	TypeDateTime SchemaType = "datetime"
 )
 
 // ValidationMode determines how strict the validation is.
