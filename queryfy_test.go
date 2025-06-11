@@ -861,10 +861,10 @@ func TestErrorPaths(t *testing.T) {
 	}
 
 	expectedPaths := map[string]bool{
-		"user.email":      true,
-		"user.age":        true,
-		"items[1].name":   true,
-		"items[1].price":  true,
+		"user.email":     true,
+		"user.age":       true,
+		"items[1].name":  true,
+		"items[1].price": true,
 	}
 
 	for _, fieldErr := range validationErr.Errors {
