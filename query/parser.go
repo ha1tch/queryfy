@@ -29,16 +29,16 @@ func (p *Parser) Parse() (*Query, error) {
 	if p.current.Type == TokenEOF {
 		return nil, fmt.Errorf("empty query")
 	}
-	
+
 	root, err := p.parseExpression()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if p.current.Type != TokenEOF {
 		return nil, fmt.Errorf("unexpected token at position %d: %s", p.current.Pos, p.current.Value)
 	}
-	
+
 	return &Query{
 		Root: &RootNode{Child: root},
 	}, nil
@@ -50,64 +50,64 @@ func (p *Parser) parseExpression() (Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for p.current.Type == TokenDot {
 		p.advance() // consume dot
-		
+
 		right, err := p.parsePrimary()
 		if err != nil {
 			return nil, err
 		}
-		
+
 		left = &DotNode{
 			Left:  left,
 			Right: right,
 		}
 	}
-	
+
 	return left, nil
 }
 
 // parsePrimary parses a primary expression (identifier or identifier[index]).
 func (p *Parser) parsePrimary() (Node, error) {
 	if p.current.Type != TokenIdentifier {
-		return nil, fmt.Errorf("expected identifier at position %d, got %s", 
+		return nil, fmt.Errorf("expected identifier at position %d, got %s",
 			p.current.Pos, TokenTypeName(p.current.Type))
 	}
-	
+
 	// Change from *IdentifierNode to Node interface type
 	var node Node = &IdentifierNode{Name: p.current.Value}
 	p.advance()
-	
+
 	// Check for array index
 	for p.current.Type == TokenLeftBracket {
 		p.advance() // consume '['
-		
+
 		if p.current.Type != TokenNumber {
 			return nil, fmt.Errorf("expected number after '[' at position %d", p.current.Pos)
 		}
-		
+
 		index, err := strconv.Atoi(p.current.Value)
 		if err != nil {
-			return nil, fmt.Errorf("invalid array index at position %d: %s", 
+			return nil, fmt.Errorf("invalid array index at position %d: %s",
 				p.current.Pos, p.current.Value)
 		}
-		
+
 		p.advance() // consume number
-		
+
 		if p.current.Type != TokenRightBracket {
 			return nil, fmt.Errorf("expected ']' at position %d", p.current.Pos)
 		}
-		
+
 		p.advance() // consume ']'
-		
+
 		// Create a composite node for array access
 		node = &DotNode{
 			Left:  node,
 			Right: &IndexNode{Index: index},
 		}
 	}
-	
+
 	return node, nil
 }
 
@@ -127,7 +127,7 @@ func ParseQuery(input string) (*Query, error) {
 // This converts complex nodes into a linear path.
 func SimplifyNode(node Node) []interface{} {
 	var path []interface{}
-	
+
 	var traverse func(n Node)
 	traverse = func(n Node) {
 		switch n := n.(type) {
@@ -144,7 +144,7 @@ func SimplifyNode(node Node) []interface{} {
 			}
 		}
 	}
-	
+
 	traverse(node)
 	return path
 }
@@ -156,10 +156,10 @@ func PathFromQuery(queryStr string) ([]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if query.Root == nil || query.Root.Child == nil {
 		return []interface{}{}, nil
 	}
-	
+
 	return SimplifyNode(query.Root.Child), nil
 }

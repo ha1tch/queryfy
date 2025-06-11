@@ -34,7 +34,7 @@ func ValidateValue(value interface{}, expectedType SchemaType, ctx *ValidationCo
 	if value == nil {
 		return true // Nil handling should be done by CheckRequired
 	}
-	
+
 	switch expectedType {
 	case TypeString:
 		return validateString(value, ctx)
@@ -119,7 +119,7 @@ func validateObject(value interface{}, ctx *ValidationContext) bool {
 		ctx.AddError("expected object with string keys", value)
 		return false
 	}
-	
+
 	ctx.AddError(fmt.Sprintf("expected object, got %T", value), value)
 	return false
 }

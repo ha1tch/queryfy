@@ -7,7 +7,7 @@ type Schema interface {
 	// It should add any validation errors to the context.
 	// Returns an error only for unexpected failures (not validation failures).
 	Validate(value interface{}, ctx *ValidationContext) error
-	
+
 	// Type returns the schema type.
 	Type() SchemaType
 }
@@ -15,7 +15,7 @@ type Schema interface {
 // BaseSchema provides common functionality for all schema types.
 // It should be embedded in concrete schema implementations.
 type BaseSchema struct {
-	SchemaType SchemaType  // Changed from schemaType to SchemaType to make it accessible
+	SchemaType SchemaType // Changed from schemaType to SchemaType to make it accessible
 	required   bool
 	nullable   bool
 }
