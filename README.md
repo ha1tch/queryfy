@@ -1,18 +1,21 @@
 # Queryfy
 
-Validate, Query, and Transform dynamic data in Go
+Validate and Query dynamic data in Go
 
-Queryfy is a Go package for working with map-based data structures. It provides schema validation, querying capabilities, and type safety for scenarios involving dynamic data like JSON APIs and configuration files.
+Queryfy is a Go package for working with map-based data structures. It provides schema validation and querying capabilities for scenarios involving dynamic data like JSON APIs and configuration files.
 
 ## Features
 
-- Schema validation with strict or loose modes
-- Query nested data structures using simple expressions
-- Type checking before marshal/unmarshal operations
-- Clear error messages with path information
-- Flexible validation modes for different use cases
+- **Schema validation** with strict or loose modes
+- **Query nested data** using dot notation and array indexing
+- **Type safety** with validation-time type checking
+- **Clear error messages** with exact field paths
+- **Composable schemas** with AND/OR/NOT logic
+- **Fluent builder API** for intuitive schema definitions
 
-Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle map[string]interface{} well. `gojsonschema` provides JSON Schema validation for maps but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. `mapstructure` handles type conversion but doesn't validate schemas. Queryfy combines all three needs—validation, querying, and schema definition—in a single, cohesive package designed specifically for Go's map-based dynamic data, with a fluent API that feels natural to Go developers.
+## Why Queryfy?
+
+Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle `map[string]interface{}` well. `gojsonschema` provides JSON Schema validation but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. Queryfy combines validation and querying in a single, cohesive package designed specifically for Go's map-based dynamic data.
 
 ## Installation
 
@@ -27,20 +30,22 @@ package main
 
 import (
     "fmt"
-    "github.com/ha1tch/queryfy"
+    "log"
+    
     qf "github.com/ha1tch/queryfy"
+    "github.com/ha1tch/queryfy/builders"
 )
 
 func main() {
     // Define a schema
-    schema := qf.Object().
-        Field("customerId", qf.String().Required()).
-        Field("amount", qf.Number().Min(0).Required()).
-        Field("items", qf.Array().Of(
-            qf.Object().
-                Field("productId", qf.String().Required()).
-                Field("quantity", qf.Number().Min(1)).
-                Field("price", qf.Number().Min(0))
+    schema := builders.Object().
+        Field("customerId", builders.String().Required()).
+        Field("amount", builders.Number().Min(0).Required()).
+        Field("items", builders.Array().Of(
+            builders.Object().
+                Field("productId", builders.String().Required()).
+                Field("quantity", builders.Number().Min(1)).
+                Field("price", builders.Number().Min(0))
         ).MinItems(1))
 
     // Your data
@@ -58,13 +63,13 @@ func main() {
 
     // Validate
     if err := qf.Validate(orderData, schema); err != nil {
-        fmt.Printf("Validation failed: %v\n", err)
+        log.Printf("Validation failed: %v\n", err)
         return
     }
 
     // Query
-    total, _ := qf.Query(orderData, "sum(items[*].price)")
-    fmt.Printf("Total price: %v\n", total)
+    firstPrice, _ := qf.Query(orderData, "items[0].price")
+    fmt.Printf("First item price: $%.2f\n", firstPrice)
 }
 ```
 
@@ -72,64 +77,94 @@ func main() {
 
 ### Schema Definition
 
-Define schemas using the builder pattern:
+Define schemas using the fluent builder pattern:
 
 ```go
-userSchema := qf.Object().
-    Field("id", qf.String().Pattern("^[A-Z]{3}-[0-9]{6}$")).
-    Field("email", qf.String().Email().Required()).
-    Field("age", qf.Number().Min(0).Max(150)).
-    Field("roles", qf.Array().Of(qf.String().Enum("admin", "user", "guest"))).
-    Field("address", qf.Object().
-        Field("street", qf.String().Required()).
-        Field("city", qf.String().Required()).
-        Field("zipCode", qf.String().Pattern("^[0-9]{5}$"))
+userSchema := builders.Object().
+    Field("id", builders.String().Pattern("^[A-Z]{3}-[0-9]{6}$")).
+    Field("email", builders.String().Email().Required()).
+    Field("age", builders.Number().Min(0).Max(150)).
+    Field("roles", builders.Array().Of(builders.String().Enum("admin", "user", "guest"))).
+    Field("address", builders.Object().
+        Field("street", builders.String().Required()).
+        Field("city", builders.String().Required()).
+        Field("zipCode", builders.String().Pattern("^[0-9]{5}$"))
     )
 ```
 
 ### Validation Modes
 
-**Strict Mode** (Default): All fields must match the schema exactly.
+**Strict Mode** (Default): All fields must match the schema exactly. Extra fields cause validation errors.
 
 ```go
-validator := qf.NewValidator(schema).Strict()
+err := qf.Validate(data, schema) // Uses strict mode by default
 ```
 
-**Loose Mode**: Allows extra fields and provides safe type coercion.
+**Loose Mode**: Allows extra fields and validates type compatibility. For example, the string "42" is considered valid for a number field.
 
 ```go
-validator := qf.NewValidator(schema).Loose()
+err := qf.ValidateWithMode(data, schema, qf.Loose)
 ```
+
+**Note**: In v0.1.0, loose mode only validates type compatibility. It does not transform the actual data. The string "42" will validate as a number but remain a string in your data structure.
 
 ### Querying Data
 
-Query using JSONPath-like syntax:
+Query using simple path expressions:
 
 ```go
-// Simple path access
+// Simple field access
 name, _ := qf.Query(data, "customer.firstName")
 
-// Array access
+// Array access by index
 firstItem, _ := qf.Query(data, "items[0]")
 
-// Wildcard selection
-allPrices, _ := qf.Query(data, "items[*].price")
+// Nested access
+street, _ := qf.Query(data, "customer.address.street")
 
-// Filtering
-expensiveItems, _ := qf.Query(data, "items[?price > 100]")
+// Complex paths
+price, _ := qf.Query(data, "items[0].product.price")
+```
 
-// Aggregations
-sum, _ := qf.Query(data, "sum(items[*].price)")
-count, _ := qf.Query(data, "count(items[*])")
-avg, _ := qf.Query(data, "avg(items[*].quantity)")
+### Composite Schemas (AND/OR/NOT)
+
+Create complex validation logic by combining schemas:
+
+```go
+// Email OR phone required
+contactSchema := builders.Or(
+    builders.String().Email(),
+    builders.String().Pattern(`^\+?[1-9]\d{9,14}$`) // International phone
+)
+
+// Multiple conditions with AND
+ageSchema := builders.And(
+    builders.Number().Min(0),
+    builders.Number().Max(150),
+    builders.Number().Integer()
+)
+
+// NOT condition
+nonEmptyString := builders.And(
+    builders.String(),
+    builders.Not(builders.String().Length(0))
+)
+
+// Use in object schema
+schema := builders.Object().
+    Field("contact", contactSchema.Required()).
+    Field("age", ageSchema).
+    Field("description", nonEmptyString)
 ```
 
 ## Advanced Usage
 
 ### Custom Validators
 
+Create custom validation logic:
+
 ```go
-phoneValidator := qf.Custom(func(value interface{}) error {
+phoneValidator := builders.Custom(func(value interface{}) error {
     str, ok := value.(string)
     if !ok {
         return fmt.Errorf("expected string, got %T", value)
@@ -140,24 +175,31 @@ phoneValidator := qf.Custom(func(value interface{}) error {
     return nil
 })
 
-schema := qf.Object().
+schema := builders.Object().
     Field("phone", phoneValidator.Required())
 ```
 
 ### Schema Composition
 
-```go
-addressSchema := qf.Object().
-    Field("street", qf.String().Required()).
-    Field("city", qf.String().Required())
+Build reusable schema components:
 
-customerSchema := qf.Object().
-    Field("name", qf.String().Required()).
-    Field("billingAddress", addressSchema).
+```go
+// Reusable address schema
+addressSchema := builders.Object().
+    Field("street", builders.String().Required()).
+    Field("city", builders.String().Required()).
+    Field("zipCode", builders.String().Pattern("^[0-9]{5}$"))
+
+// Use in multiple places
+customerSchema := builders.Object().
+    Field("name", builders.String().Required()).
+    Field("billingAddress", addressSchema.Required()).
     Field("shippingAddress", addressSchema)
 ```
 
 ### Pre-Marshal Validation
+
+Ensure data is valid before JSON marshaling:
 
 ```go
 func processOrder(data map[string]interface{}) error {
@@ -174,58 +216,93 @@ func processOrder(data map[string]interface{}) error {
 
 ```go
 // E-commerce order validation
-orderSchema := qf.Object().
-    Field("orderId", qf.String().Required()).
-    Field("customer", qf.Object().
-        Field("email", qf.String().Email().Required()).
-        Field("phone", qf.String().Required())
-    ).
-    Field("payment", qf.Object().
-        Field("method", qf.String().Enum("CARD", "CASH", "DIGITAL_WALLET")).
-        Field("amount", qf.Number().Min(0).Required()).
-        Field("currency", qf.String().Length(3).Required())
-    ).
-    Field("items", qf.Array().MinItems(1).Of(
-        qf.Object().
-            Field("productId", qf.String().Required()).
-            Field("quantity", qf.Number().Min(1).Required()).
-            Field("price", qf.Number().Min(0).Required())
-    ))
+orderSchema := builders.Object().
+    Field("orderId", builders.String().Required()).
+    Field("customer", builders.Object().
+        Field("email", builders.String().Email().Required()).
+        Field("phone", builders.String().Optional())
+    ).Required().
+    Field("payment", builders.Object().
+        Field("method", builders.String().Enum("CARD", "CASH", "DIGITAL_WALLET")).
+        Field("amount", builders.Number().Min(0).Required()).
+        Field("currency", builders.String().Length(3).Required())
+    ).Required().
+    Field("items", builders.Array().MinItems(1).Of(
+        builders.Object().
+            Field("productId", builders.String().Required()).
+            Field("quantity", builders.Number().Min(1).Integer().Required()).
+            Field("price", builders.Number().Min(0).Required())
+    ).Required())
 
 // Validate incoming order
-if err := qf.Validate(orderData, orderSchema.Strict()); err != nil {
+if err := qf.Validate(orderData, orderSchema); err != nil {
     validationErr := err.(*qf.ValidationError)
     for _, fieldErr := range validationErr.Errors {
         log.Printf("Field %s: %s", fieldErr.Path, fieldErr.Message)
     }
+    return err
 }
 
 // Query order data
 customerEmail, _ := qf.Query(orderData, "customer.email")
-totalAmount, _ := qf.Query(orderData, "sum(items[*].price * items[*].quantity)")
-highValueItems, _ := qf.Query(orderData, "items[?price > 100].productId")
+totalAmount, _ := qf.Query(orderData, "payment.amount")
+firstProductId, _ := qf.Query(orderData, "items[0].productId")
 ```
 
-## Performance Considerations
+## Error Messages
+
+Queryfy provides clear, actionable error messages with exact field paths:
+
+```
+validation failed:
+  customer.email: must be a valid email address, got "not-an-email"
+  items[0].quantity: must be >= 1, got 0
+  items[2].productId: field is required
+  payment.method: must be one of: CARD, CASH, DIGITAL_WALLET, got "CHECK"
+```
+
+## Performance
 
 Queryfy is designed for production use:
 
-- Schemas are compiled once and can be reused
-- Minimal reflection for better performance
-- Concurrent-safe validation
-- Query results are cached when possible
+- Validation schemas can be defined once and reused
+- Query paths are cached after first use
+- Minimal reflection through type-switch optimization
+- No external dependencies
 
 ```go
-// Compile schema once
-compiledSchema := qf.Compile(schema)
+// Create schema once
+var orderSchema = builders.Object().
+    Field("id", builders.String().Required()).
+    Field("amount", builders.Number().Min(0))
 
 // Reuse for multiple validations
 for _, order := range orders {
-    if err := compiledSchema.Validate(order); err != nil {
+    if err := qf.Validate(order, orderSchema); err != nil {
         // Handle error
     }
 }
 ```
+
+## Roadmap
+
+### v0.1.0 (Current Release)
+- [✓] Schema validation with builder API
+- [✓] Basic path queries (dot notation, array indexing)
+- [✓] Composite schemas (AND/OR/NOT)
+- [✓] Strict and loose validation modes
+- [✓] Custom validators
+- [✓] Clear error messages with paths
+
+### v0.2.0 (Planned)
+- [ ] Data transformation in loose mode
+- [ ] Wildcard queries (`items[*].price`)
+- [ ] Schema compilation for better performance
+
+### v0.3.0 (Future)
+- [ ] Filter expressions (`items[?price > 100]`)
+- [ ] Aggregation functions (`sum()`, `avg()`, `count()`)
+- [ ] JSON Schema compatibility
 
 ## License
 
@@ -235,7 +312,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+<http://www.apache.org/licenses/LICENSE-2.0>
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
