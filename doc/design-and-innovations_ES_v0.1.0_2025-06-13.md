@@ -561,6 +561,6 @@ Queryfy lleva **seguridad en tiempo de compilación a datos dinámicos**. No es 
 
 ## Conclusión
 
-Queryfy no es solo otra biblioteca de validación—es un replanteo completo de cómo las aplicaciones Go deberían manejar datos dinámicos. Al proporcionar una API unificada y componible que cubre validación, consultas, transformación y conversión de tipos, Queryfy elimina categorías enteras de código repetitivo mientras mantiene los principios de simplicidad y claridad de Go.
+Queryfy no es solo otra biblioteca de validación—es un replanteo completo de cómo las aplicaciones Go deberían manejar datos dinámicos. Al proporcionar una API unificada y componible que cubre validación, consultas, transformación y conversión de tipos, Queryfy replantea categorías enteras de código repetitivo mientras mantiene los principios de simplicidad y claridad de Go.
 
-Las adiciones propuestas (métodos de iteración y conversión de estructuras) completan la visión, haciendo de Queryfy la solución definitiva para el manejo de JSON dinámico en Go. Estas no son solo características—son las piezas faltantes que harán que trabajar con datos dinámicos en Go sea tan placentero como trabajar con tipos estáticos.
+Las adiciones propuestas (métodos de iteración y conversión de estructuras) completan la visión, haciendo de Queryfy una propuesta completa para el manejo de JSON dinámico en Go. Estas no son solo características—son las piezas faltantes, aproximándonos a un futuro en el que trabajar con datos dinámicos en Go fluya tan naturalmente como trabajar con tipos estáticos.
