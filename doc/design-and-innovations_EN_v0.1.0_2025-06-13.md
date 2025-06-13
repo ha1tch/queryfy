@@ -323,280 +323,14 @@ paymentSchema := builders.Object().WithDependencies().
     DependentField("cardNumber",
         builders.Dependent("cardNumber").
             When(builders.WhenEquals("paymentMethod", "credit_card")).
-            Then(builders.String().Pattern(`^\d{16}# Queryfy: Design Philosophy and Innovations
-
-## Executive Summary
-
-Queryfy represents a fundamental rethinking of how Go applications handle dynamic JSON data. While Go's type system excels at compile-time safety, real-world applications frequently encounter dynamic data from APIs, databases, and configuration files. Queryfy bridges this gap with an elegant, composable API that makes working with `map[string]interface{}` as pleasant as working with structs.
-
-## The Problem Space
-
-### The Dynamic Data Dilemma
-
-Go developers face a philosophical tension:
-- **Go's Philosophy**: Strong typing, compile-time safety, explicit is better than implicit
-- **Reality**: 30-40% of web applications handle significant amounts of dynamic JSON
-- **Current Solutions**: Verbose type assertions, error-prone manual validation, fragmented tooling
-
-### Common Pain Points
-
-1. **Type Assertion Hell**
-```go
-// This pattern appears thousands of times in production codebases
-if data, ok := response["data"].(map[string]interface{}); ok {
-    if user, ok := data["user"].(map[string]interface{}); ok {
-        if email, ok := user["email"].(string); ok {
-            // Finally have the email, but at what cost?
-        }
-    }
-}
-```
-
-2. **Validation Complexity**
-- Manual validation code is repetitive and error-prone
-- Struct tags only work with known types
-- No unified approach for dynamic schemas
-
-3. **Tool Fragmentation**
-- One library for validation (validator)
-- Another for JSON querying (gjson)
-- Another for struct conversion (mapstructure)
-- No cohesive solution
-
-## Queryfy's Design Philosophy
-
-### 1. **Composability Over Configuration**
-
-Instead of configuration files or struct tags, Queryfy uses composable builders:
-
-```go
-// Not this
-type User struct {
-    Email string `validate:"required,email" mapstructure:"email"`
-    Age   int    `validate:"min=18,max=120" mapstructure:"age"`
-}
-
-// But this
-schema := builders.Object().
-    Field("email", builders.String().Email().Required()).
-    Field("age", builders.Number().Range(18, 120))
-```
-
-**Why**: Builders are type-safe, discoverable through IDE autocomplete, and can be composed dynamically.
-
-### 2. **Progressive Enhancement**
-
-Start simple, add complexity only when needed:
-
-```go
-// Level 1: Basic validation
-err := qf.Validate(data, schema)
-
-// Level 2: Add queries
-email, _ := qf.Query(data, "user.email")
-
-// Level 3: Add iteration (v0.2.0)
-qf.Each(data, "items[*]", processItem)
-
-// Level 4: Add transformation
-cleaned := qf.Transform(data, schema)
-
-// Level 5: Convert to structs (v0.3.0)
-user, _ := qf.ToStructT[User](data)
-```
-
-### 3. **Error Messages as First-Class Citizens**
-
-Queryfy treats error messages as a critical part of the API:
-
-```go
-// Not just "validation failed"
-// But: "items[2].price: must be greater than 0, got -10"
-```
-
-Every error includes the full path to the problematic field, making debugging straightforward.
-
-### 4. **Performance Without Complexity**
-
-- Type-switch optimization for common JSON types
-- Query compilation and caching
-- Zero allocations for simple validations
-- No reflection for 90% of use cases
-
-### 5. **Go-Native Patterns**
-
-Queryfy follows established Go patterns:
-
-```go
-// Like json.Unmarshal
-err := qf.ToStruct(data, &user)
-
-// Like filepath.Walk  
-err := qf.Each(data, "items[*]", func(path string, item interface{}) error {
-    return nil
-})
-
-// Like sql.Scanner
-err := qf.ValidateToStruct(data, &result, schema)
-```
-
-### 6. **Compile-Time Safety for Dynamic Data**
-
-Queryfy achieves something unique in the Go ecosystem: bringing compile-time guarantees to runtime data validation. While working with `map[string]interface{}`, developers still get:
-
-- **Type-safe method chains** - Invalid compositions won't compile
-- **IDE intelligence** - Full autocomplete, refactoring, and inline docs
-- **Early error detection** - Mistakes caught during development, not production
-
-```go
-// These won't compile - errors caught immediately
-schema := builders.Number().Email()     // ❌ Email() undefined
-schema := builders.String().Min(5).Email() // ❌ Email() unavailable after Min()
-
-// Only valid compositions compile
-schema := builders.String().Email().Required() // ✅ IDE guides the way
-```
-
-This creates **compile-time contracts for dynamic data** - the same safety Go developers expect, extended to runtime validation.
-
-## What Queryfy Does Better
-
-### 1. **Unified API for the Entire Workflow**
-
-Other tools solve pieces of the puzzle. Queryfy provides the complete workflow:
-
-| Need | Traditional Approach | Queryfy |
-|------|---------------------|---------|
-| Validate | validator tags + manual code | `qf.Validate(data, schema)` |
-| Query | gjson or manual navigation | `qf.Query(data, "user.email")` |
-| Transform | Manual type conversion | `qf.Transform(data, schema)` |
-| Iterate | Manual loops with type assertions | `qf.Each(data, "items[*]", fn)` |
-| Convert | mapstructure | `qf.ToStruct(data, &user)` |
-
-### 2. **Schema as Single Source of Truth**
-
-One schema definition serves multiple purposes:
-
-```go
-userSchema := builders.Object().
-    Field("email", builders.String().Email().Transform(transformers.Lowercase())).
-    Field("age", builders.Number().Min(18))
-
-// Use for validation
-err := qf.Validate(userData, userSchema)
-
-// Use for transformation
-cleaned := qf.Transform(userData, userSchema)
-
-// Use for struct conversion with validation
-var user User
-err := qf.ValidateToStruct(userData, &user, userSchema)
-```
-
-### 3. **Contextual Error Reporting**
-
-Unlike flat error lists, Queryfy maintains the full context:
-
-```go
-// validator: "email must be valid email"
-// Queryfy: "addresses[2].contact.email: must be valid email address"
-```
-
-### 4. **Type-Safe Builder Pattern**
-
-The builder pattern provides:
-- Compile-time method checking
-- IDE autocomplete
-- Natural language-like API
-- No string-based DSL to learn
-
-### 5. **Production-Ready Performance**
-
-- Query compilation with caching
-- Type-switch optimization avoids reflection
-- Predictable performance characteristics
-- No hidden allocations
-
-### 6. **Type-Safe DSL Instead of String Configuration**
-
-Traditional validation libraries use string-based DSLs that fail at runtime:
-
-```go
-// struct tags - typos and invalid rules only caught at runtime
-type User struct {
-    Email string `validate:"required,emal"` // Typo! Runtime panic
-    Age   int    `validate:"email"`        // Wrong rule! Runtime error
-}
-
-// Queryfy - all errors caught at compile time
-schema := builders.String().Emal()  // ❌ Won't compile
-schema := builders.Number().Email() // ❌ Won't compile
-```
-
-The fluent builder pattern acts as a **type-safe DSL** where the compiler and IDE work together to prevent errors before they can happen.
-
-## Proposed Innovations
-
-### 1. **Iteration Methods (v0.2.0)**
-
-**Problem**: No elegant way to process multiple matching elements
-
-**Solution**: Three purpose-built methods that follow Go patterns:
-
-```go
-// Each - Process elements
-qf.Each(data, "items[*]", func(path string, item interface{}) error {
-    fmt.Printf("Processing %s\n", path)
-    return nil
-})
-
-// Collect - Transform and gather
-prices, _ := qf.Collect(data, "items[*].price", func(p interface{}) (interface{}, error) {
-    return p.(float64) * 1.1, nil // Add tax
-})
-
-// ValidateEach - Validate multiple elements
-err := qf.ValidateEach(data, "items[*]", itemSchema)
-```
-
-**Why it's better**: 
-- Maintains path context for debugging
-- Supports early termination
-- Composable with existing schemas
-- No need for manual type assertion loops
-
-### 2. **Struct Conversion (v0.3.0)**
-
-**Problem**: Getting from validated `map[string]interface{}` to structs requires another library
-
-**Solution**: Integrated struct conversion that leverages existing schemas:
-
-```go
-// Simple conversion
-var user User
-err := qf.ToStruct(userData, &user)
-
-// With validation
-err := qf.ValidateToStruct(userData, &user, userSchema)
-
-// Generic convenience
-user, err := qf.ToStructT[User](userData)
-```
-
-**Why it's better**:
-- One library instead of two
-- Reuses schema definitions
-- Applies transformations during conversion
-- Maintains Queryfy's excellent error reporting
-
-).Required())).
+            Then(builders.String().Pattern(`^\d{16}$`).Required())).
     DependentField("paypalEmail",
         builders.Dependent("paypalEmail").
             When(builders.WhenEquals("paymentMethod", "paypal")).
             Then(builders.String().Email().Required()))
 ```
 
-### 4. **Dynamic Schema Composition** (v0.2.0-v0.3.0)
+### 6. **Dynamic Schema Composition** (v0.2.0-v0.3.0)
 
 **Problem**: Static struct tags cannot adapt to runtime conditions
 
@@ -624,7 +358,7 @@ finalSchema := baseSchema.Merge(regionSchema).Merge(featureSchema)
 
 **Implementation**: Methods like `AddField()`, `RemoveField()`, `Merge()` enable powerful runtime flexibility while maintaining compile-time safety on the builder methods themselves.
 
-### 5. **Schema Cloning** (v0.2.0-v0.3.0)
+### 7. **Schema Cloning** (v0.2.0-v0.3.0)
 
 **Problem**: Modifying schemas affects all users of that schema
 
@@ -640,7 +374,7 @@ premiumSchema := baseSchema.Clone().(*builders.ObjectSchema).
 
 **Why it's critical**: Enables schema reuse across different contexts without side effects.
 
-### 6. **Builder State Types** (Future Enhancement)
+### 8. **Builder State Types** (Future Enhancement)
 
 **Problem**: Some method combinations don't make sense but only fail at runtime
 
@@ -662,7 +396,7 @@ schema := builders.String().Email().Min(5) // ❌ Compile error
 
 **Trade-off**: More complex implementation but ultimate compile-time safety.
 
-### 7. **Schema Introspection** (v0.3.0)
+### 9. **Schema Introspection** (v0.3.0)
 
 **Problem**: Schemas are opaque - hard to debug or document
 
@@ -680,7 +414,7 @@ fmt.Println(schema.Describe())
 
 **Benefits**: Self-documenting schemas, better error messages, debugging support.
 
-### 8. **Schema Visitor Pattern** (v0.4.0)
+### 10. **Schema Visitor Pattern** (v0.4.0)
 
 **Problem**: Complex schema analysis requires type switches
 
@@ -733,8 +467,6 @@ type User struct {
     Age   int    `validate:"min=18,max=120" json:"age" db:"age"`
 }
 ```
-
-## The Complete Vision
 
 ## The Complete Vision
 
