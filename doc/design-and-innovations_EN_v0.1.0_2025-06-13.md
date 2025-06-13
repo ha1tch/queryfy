@@ -1,8 +1,6 @@
 # Queryfy: Design Philosophy and Innovations
 
-## Executive Summary
-
-Queryfy represents a fundamental rethinking of how Go applications handle dynamic JSON data. While Go's type system excels at compile-time safety, real-world applications frequently encounter dynamic data from APIs, databases, and configuration files. Queryfy bridges this gap with an elegant, composable API that makes working with `map[string]interface{}` as pleasant as working with structs.
+**Queryfy represents a fundamental rethinking of how Go applications handle dynamic JSON data. While Go's type system excels at compile-time safety, real-world applications frequently encounter dynamic data from APIs, databases, and configuration files. Queryfy bridges this gap with an elegant, composable API that makes working with `map[string]interface{}` as pleasant as working with structs.**
 
 ## The Problem Space
 

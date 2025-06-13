@@ -1,8 +1,6 @@
 # Queryfy: Filosofía de Diseño e Innovaciones
 
-## Resumen Ejecutivo
-
-Queryfy representa un replanteo fundamental sobre cómo las aplicaciones Go manejan datos JSON dinámicos. Si bien el sistema de tipos de Go sobresale en seguridad en tiempo de compilación, las aplicaciones del mundo real frecuentemente encuentran datos dinámicos provenientes de APIs, bases de datos y archivos de configuración. Queryfy cierra esta brecha con una API elegante y componible que hace que trabajar con `map[string]interface{}` sea tan placentero como trabajar con estructuras.
+**Queryfy representa un replanteo fundamental sobre cómo las aplicaciones Go manejan datos JSON dinámicos. Si bien el sistema de tipos de Go sobresale en seguridad en tiempo de compilación, las aplicaciones del mundo real frecuentemente encuentran datos dinámicos provenientes de APIs, bases de datos y archivos de configuración. Queryfy cierra esta brecha con una API elegante y componible que hace que trabajar con `map[string]interface{}` sea tan placentero como trabajar con estructuras.**
 
 ## El Espacio del Problema
 
