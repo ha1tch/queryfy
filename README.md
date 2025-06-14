@@ -21,8 +21,6 @@ Queryfy is a Go package for working with map-based data structures. It provides 
 Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle `map[string]interface{}` well. `gojsonschema` provides JSON Schema validation but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. Queryfy combines validation and querying in a single, cohesive package designed specifically for Go's map-based dynamic data.
 
 ## Documentation
-## Documentation
-
 - **[Why Queryfy?](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-why-EN.md)** - Understanding the problem Queryfy solves and why it matters
 - **[Design Philosophy](https://github.com/ha1tch/queryfy/blob/main/doc/design-and-innovations_EN_v0.1.0_2025-06-13.md)** - Core design principles and innovations
 - **[Comparison Guide](https://github.com/ha1tch/queryfy/blob/main/doc/COMPARISON.md)** - How Queryfy compares to go-playground/validator, gjson, and other libraries
