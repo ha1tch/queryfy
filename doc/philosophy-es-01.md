@@ -2,7 +2,7 @@
 
 ## El Principio Fundamental
 
-Queryfy encarna una filosofía de diseño que procura aliviar la tensión eterna entre flexibilidad y predictibilidad en los sistemas de software. En su esencia, esta filosofía reconoce que la **composición** y la **configuración** no constituyen fuerzas opuestas, sino más bien dos caras de la misma moneda que se manifiestan en diferentes fases del ciclo de vida de la aplicación.
+**Queryfy encarna una filosofía de diseño que procura aliviar la tensión eterna entre flexibilidad y predictibilidad en los sistemas de software. En su esencia, esta filosofía reconoce que la composición y la configuración no constituyen fuerzas opuestas, sino más bien dos caras de la misma moneda que se manifiestan en diferentes fases del ciclo de vida de la aplicación.**
 
 ## El Modelo de Dos Fases
 
