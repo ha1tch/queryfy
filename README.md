@@ -20,6 +20,27 @@ Queryfy is a Go package for working with map-based data structures. It provides 
 
 Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle `map[string]interface{}` well. `gojsonschema` provides JSON Schema validation but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. Queryfy combines validation and querying in a single, cohesive package designed specifically for Go's map-based dynamic data.
 
+## Documentation
+## Documentation
+
+- **[Why Queryfy?](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-why-EN.md)** - Understanding the problem Queryfy solves and why it matters
+- **[Design Philosophy](https://github.com/ha1tch/queryfy/blob/main/doc/design-and-innovations_EN_v0.1.0_2025-06-13.md)** - Core design principles and innovations
+- **[Comparison Guide](https://github.com/ha1tch/queryfy/blob/main/doc/COMPARISON.md)** - How Queryfy compares to go-playground/validator, gjson, and other libraries
+- **[Philosophy: Compose at Build-Time](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-en-01.md)** - The fundamental principle behind Queryfy
+- **[Philosophy: Practical Ramifications](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-en-02.md)** - Real-world implications and patterns
+
+### En Español
+
+- **[¿Por qué Queryfy?](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-why-ES.md)** - Entendiendo el problema que Queryfy resuelve
+- **[Filosofía de Diseño](https://github.com/ha1tch/queryfy/blob/main/doc/design-and-innovations_ES_v0.1.0_2025-06-13.md)** - Principios de diseño e innovaciones
+- **[Filosofía: Componer en Tiempo de Compilación](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-es-01.md)** - El principio fundamental
+- **[Filosofía: Ramificaciones Prácticas](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-es-02.md)** - Implicaciones y patrones del mundo real
+
+### Research & Background
+
+- **[What Developers Need](https://github.com/ha1tch/queryfy/blob/main/doc/research-01-market-needs.md)** - Analysis of Go ecosystem validation needs
+- **[How Queryfy Delivers](https://github.com/ha1tch/queryfy/blob/main/doc/research-02-how-qf-delivers.md)** - Mapping features to developer needs
+
 ## Installation
 
 ```bash
