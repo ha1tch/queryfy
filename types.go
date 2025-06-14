@@ -1,4 +1,4 @@
-// types.go - Updated with DateTime type
+// types.go - Updated with DateTime, Dependent, and Transform types
 package queryfy
 
 // SchemaType represents the type of a schema.
@@ -23,6 +23,10 @@ const (
 	TypeComposite SchemaType = "composite"
 	// TypeDateTime represents a date/time schema
 	TypeDateTime SchemaType = "datetime"
+	// TypeDependent represents a dependent field schema
+	TypeDependent SchemaType = "dependent"
+	// TypeTransform represents a transformation schema
+	TypeTransform SchemaType = "transform"
 )
 
 // ValidationMode determines how strict the validation is.
@@ -42,6 +46,17 @@ const (
 // ValidatorFunc is a function that validates a value.
 // It should return an error if validation fails, nil otherwise.
 type ValidatorFunc func(value interface{}) error
+
+// TransformerFunc is a function that transforms a value.
+// It returns the transformed value and any error.
+type TransformerFunc func(value interface{}) (interface{}, error)
+
+// TransformableSchema represents a schema that can apply transformations.
+type TransformableSchema interface {
+	Schema
+	// ValidateAndTransform returns the transformed value and any validation error
+	ValidateAndTransform(value interface{}, ctx *ValidationContext) (interface{}, error)
+}
 
 // Option represents a configuration option for validators.
 type Option func(interface{})

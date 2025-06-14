@@ -8,17 +8,19 @@ import (
 // ValidationContext maintains state during validation.
 // It tracks the current path and accumulates errors.
 type ValidationContext struct {
-	path   []string
-	errors []FieldError
-	mode   ValidationMode
+	path            []string
+	errors          []FieldError
+	mode            ValidationMode
+	transformations []TransformationRecord
 }
 
 // NewValidationContext creates a new validation context.
 func NewValidationContext(mode ValidationMode) *ValidationContext {
 	return &ValidationContext{
-		path:   make([]string, 0, 8), // Pre-allocate for typical nesting depth
-		errors: make([]FieldError, 0),
-		mode:   mode,
+		path:            make([]string, 0, 8), // Pre-allocate for typical nesting depth
+		errors:          make([]FieldError, 0),
+		mode:            mode,
+		transformations: make([]TransformationRecord, 0),
 	}
 }
 
@@ -109,4 +111,32 @@ func (c *ValidationContext) WithIndex(index int, fn func()) {
 	c.PushIndex(index)
 	defer c.PopPath()
 	fn()
+}
+
+// TransformationRecord records a transformation that was applied.
+type TransformationRecord struct {
+	Path     string
+	Original interface{}
+	Result   interface{}
+	Type     string
+}
+
+// RecordTransformation records that a transformation was applied.
+func (c *ValidationContext) RecordTransformation(original, result interface{}, transformType string) {
+	c.transformations = append(c.transformations, TransformationRecord{
+		Path:     c.CurrentPath(),
+		Original: original,
+		Result:   result,
+		Type:     transformType,
+	})
+}
+
+// Transformations returns all recorded transformations.
+func (c *ValidationContext) Transformations() []TransformationRecord {
+	return c.transformations
+}
+
+// HasTransformations returns true if any transformations were applied.
+func (c *ValidationContext) HasTransformations() bool {
+	return len(c.transformations) > 0
 }

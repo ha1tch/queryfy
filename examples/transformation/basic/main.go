@@ -47,15 +47,12 @@ func stringTransformExample() {
 	for _, email := range testEmails {
 		fmt.Printf("\nInput: %q\n", email)
 		
-		// Using high-level API which properly checks errors
-		if err := qf.Validate(email, emailSchema); err != nil {
+		ctx := qf.NewValidationContext(qf.Strict)
+		if err := emailSchema.Validate(email, ctx); err != nil {
 			fmt.Printf("  [X] Validation failed: %v\n", err)
 		} else {
 			fmt.Println("  [✓] Valid email")
-			
-			// To see transformations, we need to use the context
-			ctx := qf.NewValidationContext(qf.Strict)
-			emailSchema.Validate(email, ctx)
+			// Show transformations that were applied
 			for _, transform := range ctx.Transformations() {
 				fmt.Printf("  → Transformed from %q to %q\n", 
 					transform.Original, transform.Result)
@@ -87,22 +84,14 @@ func stringTransformExample() {
 		fmt.Printf("\nInput: %q\n", username)
 		
 		ctx := qf.NewValidationContext(qf.Strict)
-		usernameSchema.Validate(username, ctx)
-		
-		// Show transformations first
-		if len(ctx.Transformations()) > 0 {
-			last := ctx.Transformations()[len(ctx.Transformations())-1]
-			fmt.Printf("  → Final form: %q\n", last.Result)
-		}
-		
-		// Then check validation
-		if ctx.HasErrors() {
-			fmt.Println("  [X] Validation failed:")
-			for _, err := range ctx.Errors() {
-				fmt.Printf("      %s\n", err.Message)
-			}
+		if err := usernameSchema.Validate(username, ctx); err != nil {
+			fmt.Printf("  [X] Validation failed: %v\n", err)
 		} else {
 			fmt.Println("  [✓] Valid username")
+			for _, transform := range ctx.Transformations() {
+				fmt.Printf("  → Step %s: %q to %q\n", 
+					transform.Type, transform.Original, transform.Result)
+			}
 		}
 	}
 }
@@ -112,11 +101,18 @@ func numberTransformExample() {
 	fmt.Println("-------------------------")
 
 	// Price normalization using Transform wrapper
-	priceSchema := builders.Transform(
+	priceStringSchema := builders.Transform(
 		builders.Number().Min(0).Required(),
 	).Add(transformers.RemoveCurrencySymbols()).
 	Add(transformers.ToFloat64()).
-	Add(transformers.Round(2))
+	Add(transformers.Round(2)).
+	Add(func(value interface{}) (interface{}, error) {
+		// Additional validation as transformation
+		if num, ok := value.(float64); ok && num < 0 {
+			return nil, fmt.Errorf("price cannot be negative")
+		}
+		return value, nil
+	})
 
 	testPrices := []string{
 		"$19.99",
@@ -126,13 +122,11 @@ func numberTransformExample() {
 		"-$10.00",
 	}
 
-	fmt.Println("Price validation and transformation:")
 	for _, price := range testPrices {
 		fmt.Printf("\nInput: %q\n", price)
 		
 		ctx := qf.NewValidationContext(qf.Strict)
-		result, err := priceSchema.ValidateAndTransform(price, ctx)
-		
+		result, err := priceStringSchema.ValidateAndTransform(price, ctx)
 		if err != nil {
 			fmt.Printf("  [X] Failed: %v\n", err)
 		} else {
@@ -161,18 +155,13 @@ func numberTransformExample() {
 		fmt.Printf("\nInput: %v%%\n", percent)
 		
 		ctx := qf.NewValidationContext(qf.Strict)
-		percentSchema.Validate(percent, ctx)
-		
-		// Show transformation
-		if len(ctx.Transformations()) > 0 {
-			fmt.Printf("  → Converted to: %v\n", ctx.Transformations()[0].Result)
-		}
-		
-		// Check validation
-		if ctx.HasErrors() {
-			fmt.Printf("  [X] Validation failed: %s\n", ctx.Errors()[0].Message)
+		if err := percentSchema.Validate(percent, ctx); err != nil {
+			fmt.Printf("  [X] Validation failed: %v\n", err)
 		} else {
-			fmt.Printf("  [✓] Valid percentage")
+			fmt.Println("  [✓] Valid percentage")
+			for _, transform := range ctx.Transformations() {
+				fmt.Printf("  → Converted to: %v\n", transform.Result)
+			}
 		}
 	}
 }
@@ -223,11 +212,6 @@ func dataSanitizationExample() {
 			"bio":     "Software developer",
 			"website": "https://janesmith.dev",
 		},
-		{
-			"name":    " ", // Too short after trim
-			"bio":     "",
-			"website": "not a url",
-		},
 	}
 
 	for i, userData := range testUsers {
@@ -235,27 +219,17 @@ func dataSanitizationExample() {
 		fmt.Printf("Input: %+v\n", userData)
 		
 		ctx := qf.NewValidationContext(qf.Strict)
-		userInputSchema.Validate(userData, ctx)
-		
-		// Show transformations
-		if len(ctx.Transformations()) > 0 {
+		if err := userInputSchema.Validate(userData, ctx); err != nil {
+			fmt.Printf("[X] Validation failed: %v\n", err)
+		} else {
+			fmt.Println("[✓] Valid user data")
 			fmt.Println("Transformations applied:")
 			for _, transform := range ctx.Transformations() {
-				if fmt.Sprintf("%v", transform.Original) != fmt.Sprintf("%v", transform.Result) {
+				if transform.Original != transform.Result {
 					fmt.Printf("  %s: %q → %q\n", 
 						transform.Path, transform.Original, transform.Result)
 				}
 			}
-		}
-		
-		// Check validation
-		if ctx.HasErrors() {
-			fmt.Println("[X] Validation failed:")
-			for _, err := range ctx.Errors() {
-				fmt.Printf("  - %s: %s\n", err.Path, err.Message)
-			}
-		} else {
-			fmt.Println("[✓] Valid user data")
 		}
 	}
 }
@@ -350,29 +324,19 @@ func complexTransformExample() {
 	fmt.Printf("%+v\n", testOrder)
 	
 	ctx := qf.NewValidationContext(qf.Strict)
-	orderSchema.Validate(testOrder, ctx)
-	
-	// Always show transformations first
-	if len(ctx.Transformations()) > 0 {
-		fmt.Println("\nTransformations applied:")
-		for _, transform := range ctx.Transformations() {
-			fmt.Printf("  %s: %v → %v\n", 
-				transform.Path, transform.Original, transform.Result)
-		}
-	}
-	
-	// Then show validation result
-	if ctx.HasErrors() {
-		fmt.Printf("\n[X] Order validation failed:\n")
-		for _, err := range ctx.Errors() {
-			fmt.Printf("  - %s: %s\n", err.Path, err.Message)
-		}
+	if err := orderSchema.Validate(testOrder, ctx); err != nil {
+		fmt.Printf("\n[X] Validation failed: %v\n", err)
 	} else {
 		fmt.Println("\n[✓] Order is valid!")
+		fmt.Println("\nTransformations applied:")
+		for _, transform := range ctx.Transformations() {
+			fmt.Printf("  %s: %v → %v (type: %s)\n", 
+				transform.Path, transform.Original, transform.Result, transform.Type)
+		}
 	}
 
-	// Example of getting transformed data
-	fmt.Println("\n\nUsing ValidateAndTransform for data retrieval:")
+	// Demonstrate transformation with retrieval
+	fmt.Println("\n\nTransformation and Retrieval:")
 	
 	emailInput := "  TEST@EXAMPLE.COM  "
 	emailTransformSchema := builders.Transform(
@@ -384,6 +348,7 @@ func complexTransformExample() {
 	if err != nil {
 		fmt.Printf("Failed to transform: %v\n", err)
 	} else {
-		fmt.Printf("Original: %q → Transformed: %q\n", emailInput, transformed)
+		fmt.Printf("Original: %q\n", emailInput)
+		fmt.Printf("Transformed: %q\n", transformed)
 	}
 }

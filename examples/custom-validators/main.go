@@ -14,7 +14,7 @@ import (
 
 // Example: E-commerce platform with complex validation requirements
 func main() {
-	fmt.Println("=== Queryfy Custom Validators Example ===\n")
+	fmt.Println("=== Queryfy Custom Validators Example ===")
 
 	// Run different examples
 	userRegistrationExample()
@@ -37,7 +37,7 @@ func userRegistrationExample() {
 
 		offensiveWords := []string{"admin", "root", "system", "null"}
 		usernameLower := strings.ToLower(username)
-		
+
 		for _, word := range offensiveWords {
 			if strings.Contains(usernameLower, word) {
 				return fmt.Errorf("username contains restricted word: %s", word)
@@ -55,40 +55,40 @@ func userRegistrationExample() {
 	// Custom validator: Password strength checker
 	passwordStrengthValidator := func(value interface{}) error {
 		password, _ := value.(string)
-		
+
 		strength := calculatePasswordStrength(password)
 		if strength < 3 {
 			return fmt.Errorf("password is too weak (strength: %d/5)", strength)
 		}
-		
+
 		// Check against common patterns
 		commonPatterns := []string{
-			"^12345",             // sequential numbers
-			"^qwerty",            // keyboard patterns
-			"^password",          // obvious passwords
+			"^12345",    // sequential numbers
+			"^qwerty",   // keyboard patterns
+			"^password", // obvious passwords
 		}
-		
+
 		for _, pattern := range commonPatterns {
 			if matched, _ := regexp.MatchString(pattern, strings.ToLower(password)); matched {
 				return fmt.Errorf("password matches common pattern")
 			}
 		}
-		
+
 		return nil
 	}
 
 	// Custom validator: Email domain whitelist/blacklist
 	emailDomainValidator := func(value interface{}) error {
 		email, _ := value.(string)
-		
+
 		// Extract domain
 		parts := strings.Split(email, "@")
 		if len(parts) != 2 {
 			return nil // Let the email validator handle this
 		}
-		
+
 		domain := strings.ToLower(parts[1])
-		
+
 		// Blacklisted domains
 		blacklist := []string{"tempmail.com", "throwaway.email", "guerrillamail.com"}
 		for _, blocked := range blacklist {
@@ -96,38 +96,38 @@ func userRegistrationExample() {
 				return fmt.Errorf("email domain %s is not allowed", domain)
 			}
 		}
-		
+
 		// For B2B, you might want to whitelist corporate domains
 		// whitelist := []string{"company.com", "enterprise.org"}
-		
+
 		return nil
 	}
 
 	// Custom validator: Birth date validation
 	birthDateValidator := func(value interface{}) error {
 		dateStr, _ := value.(string)
-		
+
 		birthDate, err := time.Parse("2006-01-02", dateStr)
 		if err != nil {
 			return fmt.Errorf("invalid date format, use YYYY-MM-DD")
 		}
-		
+
 		age := calculateAge(birthDate)
-		
+
 		if age < 13 {
 			return fmt.Errorf("must be at least 13 years old")
 		}
-		
+
 		if age > 120 {
 			return fmt.Errorf("invalid birth date")
 		}
-		
+
 		// Check for suspicious dates
 		if birthDate.Day() == 1 && birthDate.Month() == 1 {
 			// Many people put Jan 1 as fake date
 			return fmt.Errorf("please provide your actual birth date")
 		}
-		
+
 		return nil
 	}
 
@@ -161,32 +161,32 @@ func userRegistrationExample() {
 	testUsers := []map[string]interface{}{
 		{
 			"username":        "john_doe",
-			"email":          "john@company.com",
-			"password":       "Str0ng!Pass#2024",
+			"email":           "john@company.com",
+			"password":        "Str0ng!Pass#2024",
 			"confirmPassword": "Str0ng!Pass#2024",
-			"birthDate":      "1990-06-15",
-			"phoneNumber":    "+1-555-123-4567",
-			"referralCode":   "FRIEND2024",
+			"birthDate":       "1990-06-15",
+			"phoneNumber":     "+1-555-123-4567",
+			"referralCode":    "FRIEND2024",
 		},
 		{
-			"username":        "admin_user", // Fails: contains "admin"
-			"email":          "test@tempmail.com", // Fails: blacklisted domain
-			"password":       "password123", // Fails: common pattern
+			"username":        "admin_user",        // Fails: contains "admin"
+			"email":           "test@tempmail.com", // Fails: blacklisted domain
+			"password":        "password123",       // Fails: common pattern
 			"confirmPassword": "password123",
-			"birthDate":      "2015-01-01", // Fails: too young
+			"birthDate":       "2015-01-01", // Fails: too young
 		},
 		{
 			"username":        "user[with{unbalanced", // Fails: unbalanced brackets
-			"email":          "valid@email.com",
-			"password":       "aaaaaaaaa", // Fails: repeated character
+			"email":           "valid@email.com",
+			"password":        "aaaaaaaaa", // Fails: repeated character
 			"confirmPassword": "aaaaaaaaa",
-			"birthDate":      "2000-01-01", // Suspicious date
+			"birthDate":       "2000-01-01", // Suspicious date
 		},
 	}
 
 	for i, userData := range testUsers {
 		fmt.Printf("\nValidating user %d:\n", i+1)
-		
+
 		// Additional validation: password confirmation
 		if err := qf.Validate(userData, userSchema); err == nil {
 			// Check password match
@@ -209,31 +209,31 @@ func productListingExample() {
 	// Custom validator: SKU format validation
 	skuValidator := func(value interface{}) error {
 		sku, _ := value.(string)
-		
+
 		// SKU Format: CAT-BRAND-12345-SIZE
 		parts := strings.Split(sku, "-")
 		if len(parts) != 4 {
 			return fmt.Errorf("SKU must have format: CATEGORY-BRAND-NUMBER-SIZE")
 		}
-		
+
 		// Validate category
 		validCategories := []string{"ELEC", "CLTH", "HOME", "FOOD", "BOOK"}
 		if !contains(validCategories, parts[0]) {
 			return fmt.Errorf("invalid category code")
 		}
-		
+
 		// Validate brand (2-4 uppercase letters)
 		brandPattern := `^[A-Z]{2,4}$`
 		if matched, _ := regexp.MatchString(brandPattern, parts[1]); !matched {
 			return fmt.Errorf("brand code must be 2-4 uppercase letters")
 		}
-		
+
 		// Validate product number
 		numberPattern := `^\d{5}$`
 		if matched, _ := regexp.MatchString(numberPattern, parts[2]); !matched {
 			return fmt.Errorf("product number must be 5 digits")
 		}
-		
+
 		return nil
 	}
 
@@ -243,27 +243,27 @@ func productListingExample() {
 		if !ok {
 			return nil
 		}
-		
+
 		regularPrice, _ := product["regularPrice"].(float64)
 		salePrice, hasSale := product["salePrice"].(float64)
 		costPrice, _ := product["costPrice"].(float64)
-		
+
 		// Business rule: Minimum 20% margin
 		minPrice := costPrice * 1.20
 		if regularPrice < minPrice {
 			return fmt.Errorf("regular price must be at least 20%% above cost")
 		}
-		
+
 		// Business rule: Sale price must be less than regular price
 		if hasSale && salePrice >= regularPrice {
 			return fmt.Errorf("sale price must be less than regular price")
 		}
-		
+
 		// Business rule: Maximum 70% discount
-		if hasSale && salePrice < (regularPrice * 0.30) {
+		if hasSale && salePrice < (regularPrice*0.30) {
 			return fmt.Errorf("discount cannot exceed 70%%")
 		}
-		
+
 		return nil
 	}
 
@@ -273,21 +273,21 @@ func productListingExample() {
 		if !ok || len(images) == 0 {
 			return fmt.Errorf("at least one image is required")
 		}
-		
+
 		for i, img := range images {
 			imgMap, ok := img.(map[string]interface{})
 			if !ok {
 				continue
 			}
-			
+
 			url, _ := imgMap["url"].(string)
 			altText, _ := imgMap["altText"].(string)
-			
+
 			// Check image URL format
 			if !strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("image %d: URL must use HTTPS", i+1)
 			}
-			
+
 			// Check file extension
 			validExts := []string{".jpg", ".jpeg", ".png", ".webp"}
 			hasValidExt := false
@@ -300,13 +300,13 @@ func productListingExample() {
 			if !hasValidExt {
 				return fmt.Errorf("image %d: invalid file type", i+1)
 			}
-			
+
 			// SEO: Alt text requirements
 			if len(altText) < 10 {
 				return fmt.Errorf("image %d: alt text too short for SEO", i+1)
 			}
 		}
-		
+
 		return nil
 	}
 
@@ -367,15 +367,15 @@ func productListingExample() {
 				inv, _ := value.(map[string]interface{})
 				qty, _ := inv["quantity"].(float64)
 				reorder, _ := inv["reorderPoint"].(float64)
-				
+
 				if reorder > 0 && qty <= reorder {
 					return fmt.Errorf("warning: quantity at or below reorder point")
 				}
 				return nil
 			})).
 		Field("images", builders.Array().
-			Custom(imageValidator).
-			Required()).
+							Custom(imageValidator).
+							Required()).
 		Custom(priceConsistencyValidator) // Product-level validation
 
 	// Test products
@@ -400,8 +400,8 @@ func productListingExample() {
 			},
 		},
 		{
-			"sku":          "INVALID-SKU", // Invalid format
-			"title":        "AMAZING PRODUCT!!!", // Too many caps
+			"sku":          "INVALID-SKU",                                           // Invalid format
+			"title":        "AMAZING PRODUCT!!!",                                    // Too many caps
 			"description":  "Buy buy buy! Best best best! Amazing amazing amazing!", // Keyword stuffing
 			"regularPrice": 100.00,
 			"salePrice":    15.00, // Exceeds 70% discount
@@ -413,7 +413,7 @@ func productListingExample() {
 			"images": []interface{}{
 				map[string]interface{}{
 					"url":     "http://insecure.com/image.gif", // Not HTTPS, wrong format
-					"altText": "Product", // Too short
+					"altText": "Product",                       // Too short
 				},
 			},
 		},
@@ -440,11 +440,11 @@ func orderValidationExample() {
 		if !ok {
 			return nil
 		}
-		
+
 		country, _ := addr["country"].(string)
 		state, _ := addr["state"].(string)
 		zip, _ := addr["zip"].(string)
-		
+
 		// Country-specific validation
 		switch country {
 		case "US":
@@ -475,7 +475,7 @@ func orderValidationExample() {
 				return fmt.Errorf("invalid UK postcode format")
 			}
 		}
-		
+
 		return nil
 	}
 
@@ -485,45 +485,45 @@ func orderValidationExample() {
 		if !ok {
 			return nil
 		}
-		
+
 		method, _ := payment["method"].(string)
-		
+
 		switch method {
 		case "credit_card":
 			number, _ := payment["cardNumber"].(string)
 			// Remove spaces and dashes
 			number = strings.ReplaceAll(number, " ", "")
 			number = strings.ReplaceAll(number, "-", "")
-			
+
 			// Luhn algorithm validation
 			if !isValidCreditCard(number) {
 				return fmt.Errorf("invalid credit card number")
 			}
-			
+
 			// Check expiry
 			expiry, _ := payment["expiry"].(string)
 			expiryPattern := `^(0[1-9]|1[0-2])\/\d{2}$`
 			if matched, _ := regexp.MatchString(expiryPattern, expiry); !matched {
 				return fmt.Errorf("expiry must be in MM/YY format")
 			}
-			
+
 			// Validate CVV
 			cvv, _ := payment["cvv"].(string)
 			cvvPattern := `^\d{3,4}$`
 			if matched, _ := regexp.MatchString(cvvPattern, cvv); !matched {
 				return fmt.Errorf("CVV must be 3 or 4 digits")
 			}
-			
+
 		case "paypal":
 			email, _ := payment["paypalEmail"].(string)
 			if !strings.Contains(email, "@") {
 				return fmt.Errorf("valid PayPal email required")
 			}
-			
+
 		case "crypto":
 			wallet, _ := payment["walletAddress"].(string)
 			coin, _ := payment["cryptocurrency"].(string)
-			
+
 			switch coin {
 			case "BTC":
 				// Basic Bitcoin address validation
@@ -539,7 +539,7 @@ func orderValidationExample() {
 				}
 			}
 		}
-		
+
 		return nil
 	}
 
@@ -549,18 +549,18 @@ func orderValidationExample() {
 		if !ok || len(items) == 0 {
 			return fmt.Errorf("order must contain at least one item")
 		}
-		
+
 		totalAmount := 0.0
 		skuMap := make(map[string]int)
-		
+
 		for i, item := range items {
 			itemMap, ok := item.(map[string]interface{})
 			if !ok {
 				continue
 			}
-			
+
 			sku, _ := itemMap["sku"].(string)
-			
+
 			// Handle both int and float64 for quantity
 			var quantity float64
 			switch q := itemMap["quantity"].(type) {
@@ -571,36 +571,35 @@ func orderValidationExample() {
 			default:
 				quantity = 0
 			}
-			
+
 			// Handle price
 			price, _ := itemMap["price"].(float64)
-			
-			
+
 			// Check for duplicate SKUs
 			if _, exists := skuMap[sku]; exists {
 				return fmt.Errorf("duplicate SKU found: %s", sku)
 			}
 			skuMap[sku] = i
-			
+
 			// Validate quantity limits
 			if quantity > 100 {
 				return fmt.Errorf("item %d: quantity exceeds maximum of 100", i+1)
 			}
-			
+
 			// Calculate total
 			totalAmount += price * quantity
 		}
-		
+
 		// Business rule: Minimum order amount
 		if totalAmount < 10.00 {
 			return fmt.Errorf("minimum order amount is $10.00 (current: $%.2f)", totalAmount)
 		}
-		
+
 		// Business rule: Maximum order amount for new customers
 		if totalAmount > 5000.00 {
 			return fmt.Errorf("orders over $5000 require manual approval")
 		}
-		
+
 		return nil
 	}
 
@@ -655,21 +654,21 @@ func orderValidationExample() {
 		Custom(func(value interface{}) error {
 			// Order-level validation
 			order, _ := value.(map[string]interface{})
-			
+
 			// First run the items validator
 			items, _ := order["items"].([]interface{})
 			if err := orderItemsValidator(items); err != nil {
 				return err
 			}
-			
+
 			// Check shipping method vs order total
 			shipping, _ := order["shipping"].(map[string]interface{})
 			shippingMethod, _ := shipping["method"].(string)
-			
+
 			var orderTotal float64
 			for _, item := range items {
 				itemMap, _ := item.(map[string]interface{})
-				
+
 				// Handle both int and float64 for quantity
 				var qty float64
 				switch q := itemMap["quantity"].(type) {
@@ -680,16 +679,16 @@ func orderValidationExample() {
 				default:
 					qty = 0
 				}
-				
+
 				price, _ := itemMap["price"].(float64)
 				orderTotal += qty * price
 			}
-			
+
 			// Business rule: Free overnight shipping for orders over $500
 			if orderTotal < 500 && shippingMethod == "overnight" {
 				return fmt.Errorf("overnight shipping requires minimum order of $500")
 			}
-			
+
 			return nil
 		})
 
@@ -742,7 +741,7 @@ func orderValidationExample() {
 		fmt.Printf("[X] Order validation failed:\n%v\n", err)
 	} else {
 		fmt.Println("[✓] Order validation passed!")
-		
+
 		// Query some data
 		total, _ := qf.Query(order, "items[0].price")
 		method, _ := qf.Query(order, "payment.method")
@@ -759,7 +758,7 @@ func configurationExample() {
 	// Custom validator: Connection string validation
 	connectionStringValidator := func(value interface{}) error {
 		connStr, _ := value.(string)
-		
+
 		// Parse connection string
 		if strings.HasPrefix(connStr, "postgres://") {
 			// PostgreSQL format: postgres://user:password@host:port/database
@@ -776,7 +775,7 @@ func configurationExample() {
 		} else {
 			return fmt.Errorf("unsupported database type")
 		}
-		
+
 		return nil
 	}
 
@@ -786,24 +785,24 @@ func configurationExample() {
 		if !ok {
 			return nil
 		}
-		
+
 		for i, origin := range origins {
 			originStr, _ := origin.(string)
-			
+
 			// Must be valid URL or wildcard
 			if originStr != "*" {
-				if !strings.HasPrefix(originStr, "http://") && 
-				   !strings.HasPrefix(originStr, "https://") {
+				if !strings.HasPrefix(originStr, "http://") &&
+					!strings.HasPrefix(originStr, "https://") {
 					return fmt.Errorf("origin %d must start with http:// or https://", i+1)
 				}
-				
+
 				// No trailing slash
 				if strings.HasSuffix(originStr, "/") {
 					return fmt.Errorf("origin %d should not have trailing slash", i+1)
 				}
 			}
 		}
-		
+
 		return nil
 	}
 
@@ -813,11 +812,11 @@ func configurationExample() {
 		if !ok {
 			return nil
 		}
-		
+
 		env, _ := config["environment"].(string)
 		server, _ := config["server"].(map[string]interface{})
 		db, _ := config["database"].(map[string]interface{})
-		
+
 		// Handle port as either int or float64
 		var port float64
 		if server != nil {
@@ -828,7 +827,7 @@ func configurationExample() {
 				port = float64(p)
 			}
 		}
-		
+
 		// Handle poolSize
 		var poolSize float64
 		if db != nil {
@@ -839,7 +838,7 @@ func configurationExample() {
 				poolSize = float64(p)
 			}
 		}
-		
+
 		switch env {
 		case "development":
 			// Dev constraints
@@ -849,7 +848,7 @@ func configurationExample() {
 			if poolSize > 10 {
 				return fmt.Errorf("development connection pool too large")
 			}
-			
+
 		case "production":
 			// Production constraints
 			if port != 80 && port != 443 && port != 8080 {
@@ -858,18 +857,18 @@ func configurationExample() {
 			if poolSize < 20 {
 				return fmt.Errorf("production needs at least 20 connections")
 			}
-			
+
 			// Check security settings
 			security, _ := config["security"].(map[string]interface{})
 			if security == nil {
 				return fmt.Errorf("security configuration required for production")
 			}
-			
+
 			https, _ := security["forceHTTPS"].(bool)
 			if !https {
 				return fmt.Errorf("HTTPS must be enforced in production")
 			}
-			
+
 			// Check CORS settings for production
 			corsOrigins, _ := security["corsOrigins"].([]interface{})
 			for _, origin := range corsOrigins {
@@ -878,7 +877,7 @@ func configurationExample() {
 				}
 			}
 		}
-		
+
 		return nil
 	}
 
@@ -952,7 +951,7 @@ func configurationExample() {
 					}
 				}
 				return nil
-			}).Optional()).
+					}).Optional()).
 		Custom(envValidator) // Configuration-level validation
 
 	// Test configurations
@@ -1029,7 +1028,7 @@ func isBalancedUsername(username string) bool {
 		']': '[',
 		'}': '{',
 	}
-	
+
 	for _, ch := range username {
 		switch ch {
 		case '(', '[', '{':
@@ -1041,13 +1040,13 @@ func isBalancedUsername(username string) bool {
 			stack = stack[:len(stack)-1]
 		}
 	}
-	
+
 	return len(stack) == 0
 }
 
 func calculatePasswordStrength(password string) int {
 	strength := 0
-	
+
 	if len(password) >= 8 {
 		strength++
 	}
@@ -1066,7 +1065,7 @@ func calculatePasswordStrength(password string) int {
 	if regexp.MustCompile(`[!@#$%^&*(),.?":{}|<>]`).MatchString(password) {
 		strength++
 	}
-	
+
 	// Penalize repeated characters (3 or more of the same character)
 	for i := 0; i < len(password)-2; i++ {
 		if password[i] == password[i+1] && password[i+1] == password[i+2] {
@@ -1074,30 +1073,30 @@ func calculatePasswordStrength(password string) int {
 			break
 		}
 	}
-	
+
 	if strength < 0 {
 		strength = 0
 	} else if strength > 5 {
 		strength = 5
 	}
-	
+
 	return strength
 }
 
 func calculateAge(birthDate time.Time) int {
 	now := time.Now()
 	years := now.Year() - birthDate.Year()
-	
+
 	if now.YearDay() < birthDate.YearDay() {
 		years--
 	}
-	
+
 	return years
 }
 
 func phoneNumberValidator(value interface{}) error {
 	phone, _ := value.(string)
-	
+
 	// Remove common formatting
 	cleaned := strings.Map(func(r rune) rune {
 		if unicode.IsDigit(r) || r == '+' {
@@ -1105,7 +1104,7 @@ func phoneNumberValidator(value interface{}) error {
 		}
 		return -1
 	}, phone)
-	
+
 	// International format
 	if strings.HasPrefix(cleaned, "+") {
 		if len(cleaned) < 10 || len(cleaned) > 15 {
@@ -1117,23 +1116,23 @@ func phoneNumberValidator(value interface{}) error {
 			return fmt.Errorf("phone number must be 10 digits")
 		}
 	}
-	
+
 	return nil
 }
 
 func referralCodeValidator(value interface{}) error {
 	code, _ := value.(string)
-	
+
 	if code == "" {
 		return nil // Optional field
 	}
-	
+
 	// Format: 4-10 alphanumeric characters
 	pattern := `^[A-Z0-9]{4,10}$`
 	if matched, _ := regexp.MatchString(pattern, code); !matched {
 		return fmt.Errorf("invalid referral code format (must be 4-10 alphanumeric characters)")
 	}
-	
+
 	// Check against blacklist
 	blacklist := []string{"TEST", "ADMIN", "FREE", "HACK"}
 	for _, blocked := range blacklist {
@@ -1141,7 +1140,7 @@ func referralCodeValidator(value interface{}) error {
 			return fmt.Errorf("referral code contains blocked word")
 		}
 	}
-	
+
 	return nil
 }
 
@@ -1150,46 +1149,46 @@ func isValidCreditCard(number string) bool {
 	if len(number) < 13 || len(number) > 19 {
 		return false
 	}
-	
+
 	sum := 0
 	isEven := false
-	
+
 	for i := len(number) - 1; i >= 0; i-- {
 		digit := int(number[i] - '0')
-		
+
 		if isEven {
 			digit *= 2
 			if digit > 9 {
 				digit -= 9
 			}
 		}
-		
+
 		sum += digit
 		isEven = !isEven
 	}
-	
+
 	return sum%10 == 0
 }
 
 func ipAddressValidator(value interface{}) error {
 	ip, _ := value.(string)
-	
+
 	// Parse IP
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return fmt.Errorf("invalid IP address format")
 	}
-	
+
 	// Check for reserved IPs
 	if parsedIP.IsLoopback() {
 		return fmt.Errorf("loopback IP not allowed")
 	}
-	
+
 	if parsedIP.IsPrivate() {
 		// You might want to allow this depending on your use case
 		// return fmt.Errorf("private IP addresses not allowed")
 	}
-	
+
 	return nil
 }
 

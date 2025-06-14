@@ -1,5 +1,7 @@
 package queryfy
 
+import "fmt"
+
 // Schema represents a validation schema.
 // All schema types must implement this interface.
 type Schema interface {
@@ -10,6 +12,13 @@ type Schema interface {
 
 	// Type returns the schema type.
 	Type() SchemaType
+}
+
+// Transformer represents a function that can transform values.
+// This is defined here to avoid circular dependencies.
+type Transformer interface {
+	// Transform applies the transformation to a value
+	Transform(value interface{}) (interface{}, error)
 }
 
 // BaseSchema provides common functionality for all schema types.
@@ -60,4 +69,70 @@ func (s *BaseSchema) CheckRequired(value interface{}, ctx *ValidationContext) bo
 		return false // Don't continue validation for nil values
 	}
 	return true
+}
+
+// WithTransform wraps a schema to add transformation capability.
+type WithTransform struct {
+	Schema
+	transformers []TransformerFunc
+}
+
+// NewWithTransform creates a new schema with transformation support.
+func NewWithTransform(schema Schema) *WithTransform {
+	return &WithTransform{
+		Schema:       schema,
+		transformers: []TransformerFunc{},
+	}
+}
+
+// AddTransformer adds a transformer to the pipeline.
+func (s *WithTransform) AddTransformer(t TransformerFunc) *WithTransform {
+	s.transformers = append(s.transformers, t)
+	return s
+}
+
+// Validate applies transformations then validates.
+func (s *WithTransform) Validate(value interface{}, ctx *ValidationContext) error {
+	transformed, err := s.transform(value, ctx)
+	if err != nil {
+		ctx.AddError(fmt.Sprintf("transformation failed: %s", err.Error()), value)
+		return nil
+	}
+	return s.Schema.Validate(transformed, ctx)
+}
+
+// ValidateAndTransform validates and returns the transformed value.
+func (s *WithTransform) ValidateAndTransform(value interface{}, ctx *ValidationContext) (interface{}, error) {
+	transformed, err := s.transform(value, ctx)
+	if err != nil {
+		ctx.AddError(fmt.Sprintf("transformation failed: %s", err.Error()), value)
+		return value, ctx.Error()
+	}
+
+	if err := s.Schema.Validate(transformed, ctx); err != nil {
+		return transformed, err
+	}
+
+	return transformed, ctx.Error()
+}
+
+// transform applies all transformations in order.
+func (s *WithTransform) transform(value interface{}, ctx *ValidationContext) (interface{}, error) {
+	result := value
+	for i, transformer := range s.transformers {
+		original := result
+		var err error
+		result, err = transformer(result)
+		if err != nil {
+			return value, fmt.Errorf("transformation %d: %w", i+1, err)
+		}
+		// Record the transformation
+		ctx.RecordTransformation(original, result, fmt.Sprintf("transform_%d", i+1))
+	}
+	return result, nil
+}
+
+// Type returns the underlying schema type.
+func (s *WithTransform) Type() SchemaType {
+	return s.Schema.Type()
 }

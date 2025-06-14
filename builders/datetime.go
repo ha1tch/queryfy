@@ -50,7 +50,7 @@ func (s *DateTimeSchema) Nullable() *DateTimeSchema {
 // Format sets the expected date/time format.
 // Common formats:
 //   - time.RFC3339: "2006-01-02T15:04:05Z07:00"
-//   - time.DateOnly: "2006-01-02" 
+//   - time.DateOnly: "2006-01-02"
 //   - "2006-01-02 15:04:05"
 //   - "01/02/2006"
 //   - "02-Jan-2006"
@@ -181,7 +181,7 @@ func (s *DateTimeSchema) Age(minAge, maxAge int) *DateTimeSchema {
 		if !ok {
 			return nil
 		}
-		
+
 		age := calculateAge(t)
 		if age < minAge {
 			return fmt.Errorf("age must be at least %d years (current: %d)", minAge, age)
@@ -201,14 +201,14 @@ func (s *DateTimeSchema) Weekday(days ...time.Weekday) *DateTimeSchema {
 		if !ok {
 			return nil
 		}
-		
+
 		currentDay := t.Weekday()
 		for _, day := range days {
 			if currentDay == day {
 				return nil
 			}
 		}
-		
+
 		return fmt.Errorf("must be on %s", formatWeekdays(days))
 	})
 	return s
@@ -233,7 +233,7 @@ func (s *DateTimeSchema) Validate(value interface{}, ctx *queryfy.ValidationCont
 
 	// Try to get time.Time directly first
 	t, isTime := value.(time.Time)
-	
+
 	if !isTime {
 		// Try to parse string in loose mode or if it's a string
 		str, isString := value.(string)
@@ -246,7 +246,7 @@ func (s *DateTimeSchema) Validate(value interface{}, ctx *queryfy.ValidationCont
 					return nil
 				}
 			}
-			
+
 			// Parse the string
 			parsed, err := time.Parse(s.format, str)
 			if err != nil {
@@ -267,12 +267,12 @@ func (s *DateTimeSchema) Validate(value interface{}, ctx *queryfy.ValidationCont
 	}
 
 	// Now validate the parsed time
-	
+
 	// Range validation
 	if s.minTime != nil && t.Before(*s.minTime) {
 		ctx.AddError(fmt.Sprintf("must be after %s", s.minTime.Format(s.format)), t.Format(s.format))
 	}
-	
+
 	if s.maxTime != nil && t.After(*s.maxTime) {
 		ctx.AddError(fmt.Sprintf("must be before %s", s.maxTime.Format(s.format)), t.Format(s.format))
 	}
@@ -298,12 +298,12 @@ func (s *DateTimeSchema) Type() queryfy.SchemaType {
 func calculateAge(birthDate time.Time) int {
 	now := time.Now()
 	years := now.Year() - birthDate.Year()
-	
+
 	// Adjust if birthday hasn't occurred this year
 	if now.YearDay() < birthDate.YearDay() {
 		years--
 	}
-	
+
 	return years
 }
 
@@ -312,16 +312,16 @@ func formatWeekdays(days []time.Weekday) string {
 	if len(days) == 0 {
 		return ""
 	}
-	
+
 	names := make([]string, len(days))
 	for i, day := range days {
 		names[i] = day.String()
 	}
-	
+
 	if len(names) == 1 {
 		return names[0]
 	}
-	
+
 	return names[0] + " through " + names[len(names)-1]
 }
 
@@ -330,15 +330,15 @@ func tryCommonFormats(str string) (time.Time, error) {
 	// First, try the most common worldwide formats (DD/MM/YYYY used by most of the world)
 	worldwideFormats := []string{
 		time.RFC3339,
-		"2006-01-02",          // ISO format (unambiguous)
+		"2006-01-02", // ISO format (unambiguous)
 		"2006-01-02 15:04:05",
-		"02/01/2006",          // DD/MM/YYYY - British/European/Latin American format
-		"2/1/2006",            // D/M/YYYY
-		"02-01-2006",          // DD-MM-YYYY
-		"2-1-2006",            // D-M-YYYY
-		"02.01.2006",          // DD.MM.YYYY (common in Europe)
-		"2.1.2006",            // D.M.YYYY
-		"2006/01/02",          // YYYY/MM/DD
+		"02/01/2006", // DD/MM/YYYY - British/European/Latin American format
+		"2/1/2006",   // D/M/YYYY
+		"02-01-2006", // DD-MM-YYYY
+		"2-1-2006",   // D-M-YYYY
+		"02.01.2006", // DD.MM.YYYY (common in Europe)
+		"2.1.2006",   // D.M.YYYY
+		"2006/01/02", // YYYY/MM/DD
 		"02-Jan-2006",
 		"2-Jan-2006",
 		"Jan 2, 2006",
@@ -348,25 +348,25 @@ func tryCommonFormats(str string) (time.Time, error) {
 		"2006-01-02T15:04:05", // RFC3339 without timezone
 		"15:04:05",
 		"3:04 PM",
-		"2006-01-02 15:04",    // Without seconds
-		"02/01/06",            // DD/MM/YY
-		"2/1/06",              // D/M/YY
+		"2006-01-02 15:04", // Without seconds
+		"02/01/06",         // DD/MM/YY
+		"2/1/06",           // D/M/YY
 	}
-	
+
 	// Try worldwide formats first
 	for _, format := range worldwideFormats {
 		if t, err := time.Parse(format, str); err == nil {
 			return t, nil
 		}
 	}
-	
+
 	// Special handling for slash-separated dates to detect US format
 	if strings.Contains(str, "/") {
 		parts := strings.Split(str, "/")
 		if len(parts) == 3 {
 			first, err1 := strconv.Atoi(parts[0])
 			second, err2 := strconv.Atoi(parts[1])
-			
+
 			if err1 == nil && err2 == nil {
 				// If day > 12, it must be US format MM/DD/YYYY
 				if first <= 12 && second > 12 && second <= 31 {
@@ -392,23 +392,23 @@ func tryCommonFormats(str string) (time.Time, error) {
 			}
 		}
 	}
-	
+
 	// Try remaining formats
 	additionalFormats := []string{
-		"01-02-2006",          // MM-DD-YYYY (US with dashes)
-		"1-2-2006",            // M-D-YYYY
+		"01-02-2006",             // MM-DD-YYYY (US with dashes)
+		"1-2-2006",               // M-D-YYYY
 		"Monday, 2 January 2006", // Full format
-		"Mon, 2 Jan 2006",     // Abbreviated
-		"01/02/06",            // MM/DD/YY
-		"1/2/06",              // M/D/YY
+		"Mon, 2 Jan 2006",        // Abbreviated
+		"01/02/06",               // MM/DD/YY
+		"1/2/06",                 // M/D/YY
 	}
-	
+
 	for _, format := range additionalFormats {
 		if t, err := time.Parse(format, str); err == nil {
 			return t, nil
 		}
 	}
-	
+
 	return time.Time{}, fmt.Errorf("unable to parse date/time from: %s", str)
 }
 

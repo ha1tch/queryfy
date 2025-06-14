@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	fmt.Println("=== Queryfy DateTime Validation Examples ===\n")
+	fmt.Println("=== Queryfy DateTime Validation Examples ===")
 
 	// Example 1: Basic date validation
 	basicDateExample()
@@ -247,15 +247,15 @@ func businessHoursExample() {
 	}
 	// Reset to start of day
 	nextMonday = time.Date(nextMonday.Year(), nextMonday.Month(), nextMonday.Day(), 0, 0, 0, 0, nextMonday.Location())
-	
+
 	// Ensure it's actually in the future
 	if nextMonday.Before(now) || nextMonday.Equal(now) {
 		nextMonday = nextMonday.Add(7 * 24 * time.Hour)
 	}
-	
-	nextFriday := nextMonday.Add(4 * 24 * time.Hour) // Friday is 4 days after Monday
+
+	nextFriday := nextMonday.Add(4 * 24 * time.Hour)   // Friday is 4 days after Monday
 	nextSaturday := nextMonday.Add(5 * 24 * time.Hour) // Saturday is 5 days after Monday
-	
+
 	testAppointments := []map[string]interface{}{
 		{
 			"patientName":     "John Smith",
@@ -283,9 +283,9 @@ func businessHoursExample() {
 			"duration":        15,
 		},
 	}
-	
-	fmt.Printf("(Testing with Monday=%s, Friday=%s)\n", 
-		nextMonday.Format("2006-01-02"), 
+
+	fmt.Printf("(Testing with Monday=%s, Friday=%s)\n",
+		nextMonday.Format("2006-01-02"),
 		nextFriday.Format("2006-01-02"))
 
 	for _, apt := range testAppointments {
@@ -314,9 +314,9 @@ func businessHoursExample() {
 		{"Long format", "June 15, 2024"},
 		{"With time", "2024-06-15 14:30:00"},
 		{"Time only", "14:30:00"},
-		{"DD/MM/YYYY", "31/12/2024"},  // Unambiguous DD/MM
-		{"MM/DD/YYYY", "12/31/2024"},  // Unambiguous MM/DD
-		{"Ambiguous", "01/02/2024"},   // Could be either
+		{"DD/MM/YYYY", "31/12/2024"}, // Unambiguous DD/MM
+		{"MM/DD/YYYY", "12/31/2024"}, // Unambiguous MM/DD
+		{"Ambiguous", "01/02/2024"},  // Could be either
 	}
 
 	fmt.Println("Testing various date formats:")

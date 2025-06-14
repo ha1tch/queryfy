@@ -190,15 +190,17 @@ Transform data during validation using built-in or custom transformers:
 import "github.com/ha1tch/queryfy/builders/transformers"
 
 // Use built-in transformers
-emailSchema := builders.String().
-    Transform(transformers.Lowercase()).
-    Transform(transformers.Trim()).
-    Email()
+emailSchema := builders.Transform(
+    builders.String().Email().Required(),
+).Add(transformers.Trim()).
+  Add(transformers.Lowercase())
 
 // Number transformations
-priceSchema := builders.Number().
-    Transform(transformers.Round(2)).
-    Min(0)
+priceSchema := builders.Transform(
+    builders.Number().Min(0).Required(),
+).Add(transformers.RemoveCurrencySymbols()).
+  Add(transformers.ToFloat64()).
+  Add(transformers.Round(2))
 
 // Custom transformer
 normalizePhone := func(value interface{}) (interface{}, error) {
@@ -207,214 +209,13 @@ normalizePhone := func(value interface{}) (interface{}, error) {
     return regexp.MustCompile(`\D`).ReplaceAllString(phone, ""), nil
 }
 
-phoneSchema := builders.String().
-    Transform(normalizePhone).
-    Pattern(`^\d{10}# Queryfy
+phoneSchema := builders.Transform(
+    builders.String().Pattern(`^\d{10}$`).Required(),
+).Add(normalizePhone)
 
-Validate and Query dynamic data in Go
-
-Queryfy is a Go package for working with map-based data structures. It provides schema validation and querying capabilities for scenarios involving dynamic data like JSON APIs and configuration files.
-
-## Features
-
-- **Schema validation** with strict or loose modes
-- **Query nested data** using dot notation and array indexing
-- **Type safety** with validation-time type checking
-- **Clear error messages** with exact field paths
-- **Composable schemas** with AND/OR/NOT logic
-- **Fluent builder API** for intuitive schema definitions
-- **Data transformation** with built-in and custom transformers
-- **DateTime validation** with comprehensive format support
-- **Dependent field validation** for conditional requirements
-
-## Why Queryfy?
-
-Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle `map[string]interface{}` well. `gojsonschema` provides JSON Schema validation but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. Queryfy combines validation and querying in a single, cohesive package designed specifically for Go's map-based dynamic data.
-
-## Installation
-
-```bash
-go get github.com/ha1tch/queryfy
-```
-
-## Quick Start
-
-```go
-package main
-
-import (
-    "fmt"
-    "log"
-    
-    qf "github.com/ha1tch/queryfy"
-    "github.com/ha1tch/queryfy/builders"
-)
-
-func main() {
-    // Define a schema
-    schema := builders.Object().
-        Field("customerId", builders.String().Required()).
-        Field("amount", builders.Number().Min(0).Required()).
-        Field("items", builders.Array().Of(
-            builders.Object().
-                Field("productId", builders.String().Required()).
-                Field("quantity", builders.Number().Min(1)).
-                Field("price", builders.Number().Min(0))
-        ).MinItems(1))
-
-    // Your data
-    orderData := map[string]interface{}{
-        "customerId": "CUST-123",
-        "amount": 150.50,
-        "items": []interface{}{
-            map[string]interface{}{
-                "productId": "PROD-456",
-                "quantity":  2,
-                "price":     75.25,
-            },
-        },
-    }
-
-    // Validate
-    if err := qf.Validate(orderData, schema); err != nil {
-        log.Printf("Validation failed: %v\n", err)
-        return
-    }
-
-    // Query
-    firstPrice, _ := qf.Query(orderData, "items[0].price")
-    fmt.Printf("First item price: $%.2f\n", firstPrice)
-}
-```
-
-## Core Concepts
-
-### Schema Definition
-
-Define schemas using the fluent builder pattern:
-
-```go
-userSchema := builders.Object().
-    Field("id", builders.String().Pattern("^[A-Z]{3}-[0-9]{6}$")).
-    Field("email", builders.String().Email().Required()).
-    Field("age", builders.Number().Min(0).Max(150)).
-    Field("roles", builders.Array().Of(builders.String().Enum("admin", "user", "guest"))).
-    Field("address", builders.Object().
-        Field("street", builders.String().Required()).
-        Field("city", builders.String().Required()).
-        Field("zipCode", builders.String().Pattern("^[0-9]{5}$"))
-    )
-```
-
-### Validation Modes
-
-**Strict Mode** (Default): All fields must match the schema exactly. Extra fields cause validation errors.
-
-```go
-err := qf.Validate(data, schema) // Uses strict mode by default
-```
-
-**Loose Mode**: Allows extra fields and validates type compatibility. For example, the string "42" is considered valid for a number field.
-
-```go
-err := qf.ValidateWithMode(data, schema, qf.Loose)
-```
-
-**Note**: In v0.1.0, loose mode only validates type compatibility. It does not transform the actual data. The string "42" will validate as a number but remain a string in your data structure.
-
-### Querying Data
-
-Query using simple path expressions:
-
-```go
-// Simple field access
-name, _ := qf.Query(data, "customer.firstName")
-
-// Array access by index
-firstItem, _ := qf.Query(data, "items[0]")
-
-// Nested access
-street, _ := qf.Query(data, "customer.address.street")
-
-// Complex paths
-price, _ := qf.Query(data, "items[0].product.price")
-```
-
-### Composite Schemas (AND/OR/NOT)
-
-Create complex validation logic by combining schemas:
-
-```go
-// Email OR phone required
-contactSchema := builders.Or(
-    builders.String().Email(),
-    builders.String().Pattern(`^\+?[1-9]\d{9,14}$`) // International phone
-)
-
-// Multiple conditions with AND
-ageSchema := builders.And(
-    builders.Number().Min(0),
-    builders.Number().Max(150),
-    builders.Number().Integer()
-)
-
-// NOT condition
-nonEmptyString := builders.And(
-    builders.String(),
-    builders.Not(builders.String().Length(0))
-)
-
-// Use in object schema
-schema := builders.Object().
-    Field("contact", contactSchema.Required()).
-    Field("age", ageSchema).
-    Field("description", nonEmptyString)
-```
-
-## Advanced Usage
-
-### Custom Validators
-
-Create custom validation logic:
-
-```go
-phoneValidator := builders.Custom(func(value interface{}) error {
-    str, ok := value.(string)
-    if !ok {
-        return fmt.Errorf("expected string, got %T", value)
-    }
-    if !isValidPhone(str) {
-        return fmt.Errorf("invalid phone number: %s", str)
-    }
-    return nil
-})
-
-schema := builders.Object().
-    Field("phone", phoneValidator.Required())
-```
-
-### Data Transformation
-
-Transform data during validation using built-in or custom transformers:
-
-```go
-import "github.com/ha1tch/queryfy/builders/transformers"
-
-// Use built-in transformers
-emailSchema := builders.String().
-    Transform(transformers.Lowercase()).
-    Transform(transformers.Trim()).
-    Email()
-
-)
-
-// Using ValidateAndTransform with a transform schema
-transformSchema := builders.Transform(
-    builders.String().Email(),
-).Add(transformers.Trim()).Add(transformers.Lowercase())
-
+// Using ValidateAndTransform to get transformed values
 ctx := qf.NewValidationContext(qf.Strict)
-transformed, err := transformSchema.ValidateAndTransform(emailInput, ctx)
+transformed, err := emailSchema.ValidateAndTransform(emailInput, ctx)
 ```
 
 ### DateTime Validation
@@ -448,7 +249,7 @@ Validate fields based on the values of other fields:
 
 ```go
 // Payment form with conditional fields
-paymentSchema := builders.Object().
+paymentSchema := builders.Object().WithDependencies().
     Field("paymentMethod", builders.String().
         Enum("credit_card", "paypal", "bank_transfer")).
     DependentField("cardNumber",
@@ -505,7 +306,9 @@ func processOrder(data map[string]interface{}) error {
 orderSchema := builders.Object().
     Field("orderId", builders.String().Required()).
     Field("customer", builders.Object().
-        Field("email", builders.String().Email().Required()).
+        Field("email", builders.Transform(
+            builders.String().Email().Required(),
+        ).Add(transformers.Trim()).Add(transformers.Lowercase())).
         Field("phone", builders.String().Optional())
     ).Required().
     Field("payment", builders.Object().
@@ -517,7 +320,9 @@ orderSchema := builders.Object().
         builders.Object().
             Field("productId", builders.String().Required()).
             Field("quantity", builders.Number().Min(1).Integer().Required()).
-            Field("price", builders.Number().Min(0).Required())
+            Field("price", builders.Transform(
+                builders.Number().Min(0).Required(),
+            ).Add(transformers.Round(2)))
     ).Required())
 
 // Validate incoming order
@@ -572,24 +377,30 @@ for _, order := range orders {
 
 ## Roadmap
 
-### v0.1.0 (Current Release)
+### v0.1.0 (Released)
 - [✓] Schema validation with builder API
 - [✓] Basic path queries (dot notation, array indexing)
 - [✓] Composite schemas (AND/OR/NOT)
 - [✓] Strict and loose validation modes
 - [✓] Custom validators
 - [✓] Clear error messages with paths
-- [✓] Data transformation pipeline (note: transforms work during validation, not on the original data)
-- [✓] DateTime validation
-- [✓] Dependent field validation
 
-### v0.2.0 (Planned)
+### v0.2.0 (Current Release)
+- [✓] Data transformation pipeline with builder pattern
+- [✓] DateTime validation with comprehensive format support
+- [✓] Dependent field validation for conditional requirements
+- [✓] Phone normalization for multiple countries
+- [✓] Built-in transformers (string, number, date operations)
+- [✓] Transform chaining with `.Add()` method
+
+### v0.3.0 (Planned)
 - [ ] Data transformation in loose mode (modify actual data)
 - [ ] Wildcard queries (`items[*].price`)
 - [ ] Schema compilation for better performance
 - [ ] Iteration methods (`Each`, `Collect`, `ValidateEach`)
+- [ ] Enhanced transform API (direct method chaining)
 
-### v0.3.0 (Future)
+### v0.4.0 (Future)
 - [ ] Filter expressions (`items[?price > 100]`)
 - [ ] Aggregation functions (`sum()`, `avg()`, `count()`)
 - [ ] JSON Schema compatibility
