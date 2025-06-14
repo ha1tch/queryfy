@@ -1,6 +1,5 @@
 # Queryfy
-
-Validate and Query dynamic data in Go
+#### Validate, Query, and Transform Dynamic Data in Go
 
 Queryfy is a Go package for working with map-based data structures. It provides schema validation and querying capabilities for scenarios involving dynamic data like JSON APIs and configuration files.
 
