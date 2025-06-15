@@ -1,0 +1,47 @@
+SUPERJSONIC ARRAY-OPTIMIZED PARSER TEST
+=======================================
+
+Direct Array:
+  Is Large Array: true
+  Estimated Elements: 2
+  Tokens Per Element: 0
+
+Items Array:
+  Is Large Array: true
+  Estimated Elements: 10
+  Tokens Per Element: 21
+
+Data Array:
+  Is Large Array: true
+  Estimated Elements: 2
+  Tokens Per Element: 5
+
+Non-Array:
+  Is Large Array: false
+  Estimated Elements: 0
+  Tokens Per Element: 0
+
+=== Performance Comparison ===
+
+Array with 100 objects (8.53 KB):
+  Optimized: 129.709µs (2210 tokens, 64.19 MB/s) [Array-optimized: false]
+  Standard: 456.791µs (18.23 MB/s)
+  Speedup: 3.52x
+
+Array with 1000 objects (87.97 KB):
+  Optimized: 543.458µs (22010 tokens, 158.08 MB/s) [Array-optimized: false]
+  Standard: 1.619791ms (53.04 MB/s)
+  Speedup: 2.98x
+
+Array with 10000 objects (908.83 KB):
+  Optimized: 1.927416ms (220010 tokens, 460.48 MB/s) [Array-optimized: true]
+  Standard: 9.823542ms (90.35 MB/s)
+  Speedup: 5.10x
+
+Array with 100000 objects (9381.48 KB):
+  Optimized: 22.861625ms (2200010 tokens, 400.74 MB/s) [Array-optimized: true]
+  Standard: 95.658667ms (95.77 MB/s)
+  Speedup: 4.18x
+
+=== Memory Usage ===
+Alloc = 0 MB, TotalAlloc = 157 MB

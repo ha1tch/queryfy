@@ -1,0 +1,20 @@
+$ ./runbench.sh 
+goos: darwin
+goarch: arm64
+pkg: superjsonic
+BenchmarkSimpleJSON/OptimizedParser-8         	10947535	       111.4 ns/op	 538.36 MB/s	       0 B/op	       0 allocs/op
+BenchmarkSimpleJSON/StandardJSON-8            	  919322	      1190 ns/op	  50.43 MB/s	     752 B/op	      24 allocs/op
+BenchmarkComplexJSON/OptimizedParser-8        	 1475425	       816.7 ns/op	 573.06 MB/s	       0 B/op	       0 allocs/op
+BenchmarkComplexJSON/StandardJSON-8           	  246979	      4742 ns/op	  98.69 MB/s	    2992 B/op	      82 allocs/op
+BenchmarkLargeJSON/OptimizedParser_100-8      	   90118	     13085 ns/op	 667.34 MB/s	       0 B/op	       0 allocs/op
+BenchmarkLargeJSON/StandardJSON_100-8         	   15574	     76934 ns/op	 113.50 MB/s	   50368 B/op	    1514 allocs/op
+BenchmarkLargeJSON/OptimizedParser_1000-8     	    9152	    133494 ns/op	 674.88 MB/s	       0 B/op	       0 allocs/op
+BenchmarkLargeJSON/StandardJSON_1000-8        	    1540	    780578 ns/op	 115.42 MB/s	  507107 B/op	   15018 allocs/op
+BenchmarkLargeJSON/OptimizedParser_10000-8    	     909	   1301423 ns/op	 715.13 MB/s	   10208 B/op	       0 allocs/op
+BenchmarkLargeJSON/StandardJSON_10000-8       	     142	   8405554 ns/op	 110.72 MB/s	 5376605 B/op	  150025 allocs/op
+BenchmarkStringHeavyJSON/OptimizedParser-8    	   63805	     18521 ns/op	2964.34 MB/s	       0 B/op	       0 allocs/op
+BenchmarkStringHeavyJSON/StandardJSON-8       	    4558	    261981 ns/op	 209.57 MB/s	  131016 B/op	    2023 allocs/op
+BenchmarkParserReuse/WithPooling-8            	 1466395	       809.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkParserReuse/WithoutPooling-8         	  767571	      1566 ns/op	   12288 B/op	       1 allocs/op
+PASS
+ok  	superjsonic	21.890s

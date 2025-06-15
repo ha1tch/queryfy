@@ -1,0 +1,65 @@
+SUPERJSONIC STRESS TEST SUITE
+==============================
+
+=== Deep Nesting (1000 levels) ===
+Data size: 7451 bytes
+Superjsonic: 103.292µs (3002 tokens, 68.79 MB/s)
+Standard JSON: 902.875µs (7.87 MB/s)
+Speedup: 8.74x
+
+=== Deep Nesting (5000 levels) ===
+Data size: 39451 bytes
+Superjsonic: 865.875µs (15002 tokens, 43.45 MB/s)
+Standard JSON: 3.014083ms (12.48 MB/s)
+Speedup: 3.48x
+
+=== Wide Object (1000 fields) ===
+Data size: 23781 bytes
+Superjsonic: 39.75µs (4002 tokens, 570.55 MB/s)
+Standard JSON: 210.292µs (107.85 MB/s)
+Speedup: 5.29x
+
+=== Wide Object (10000 fields) ===
+Data size: 257781 bytes
+Superjsonic: 607.625µs (40002 tokens, 404.59 MB/s)
+Standard JSON: 2.607292ms (94.29 MB/s)
+Speedup: 4.29x
+
+=== Large Array (10000 objects) ===
+Data size: 930692 bytes
+Superjsonic: 7.019792ms (220010 tokens, 126.44 MB/s)
+Standard JSON: 9.515084ms (93.28 MB/s)
+Speedup: 1.36x
+
+=== Large Array (100000 objects) ===
+Data size: 9606602 bytes
+Superjsonic: 103.050708ms (2200010 tokens, 88.90 MB/s)
+Standard JSON: 115.220917ms (79.51 MB/s)
+Speedup: 1.12x
+
+=== Memory Pressure Test ===
+Before: Alloc = 0 MB, TotalAlloc = 400 MB, Sys = 319 MB, NumGC = 18
+After Superjsonic: Alloc = 0 MB, TotalAlloc = 443 MB, Sys = 319 MB, NumGC = 33
+After Standard JSON: Alloc = 0 MB, TotalAlloc = 533 MB, Sys = 319 MB, NumGC = 60
+
+=== Concurrent Parsing (Concurrent with 10 goroutines) ===
+Superjsonic concurrent: 54.836583ms
+Standard JSON concurrent: 503.516542ms
+Speedup: 9.18x
+
+=== Concurrent Parsing (Concurrent with 100 goroutines) ===
+Superjsonic concurrent: 542.805334ms
+Standard JSON concurrent: 4.072017875s
+Speedup: 7.50x
+
+=== Worst Case Scenario ===
+
+=== Worst Case (Unicode + Escapes + Scientific) ===
+Data size: 13099 bytes
+Superjsonic: 26.417µs (2018 tokens, 472.88 MB/s)
+Standard JSON: 137.75µs (90.69 MB/s)
+Speedup: 5.21x
+
+=== Summary ===
+Superjsonic maintains consistent performance across various stress scenarios
+with zero allocations and significant speedups over standard JSON parsing.
