@@ -29,6 +29,19 @@ Benchmarks on Apple M1 (arm64):
 | Array (100K items) | 9.4MB | 84.7 ms/op | 16.2 ms/op | **5.2x** | 0 |
 | String-heavy | 55KB | 265 ms/op | 19 ms/op | **14.2x** | 0 |
 
+
+## Documentation
+
+For detailed documentation about Superjsonic, see:
+
+- **[Understanding Superjsonic](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-01-understanding-EN.md)** - Comprehensive guide to how Superjsonic works and why it's fast
+- **[Architecture](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-02-architecture.md)** - Technical architecture and design decisions
+- **[API Reference](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-03-api.md)** - Complete API documentation
+- **[Integration Guide](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-05-integration-with-queryfy.md)** - How Superjsonic integrates with Queryfy
+- **[Real-World Use Cases](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-06-real-world-problems.md)** - Problems Superjsonic solves in production
+
+También disponible en español: **[Entendiendo Superjsonic](https://github.com/ha1tch/queryfy/blob/main/superjsonic/doc/superjsonic-01-understanding-ES.md)**
+
 ## Installation
 
 Superjsonic is included as part of the Queryfy package:
