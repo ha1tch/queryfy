@@ -1,6 +1,12 @@
 # Superjsonic
 
 A high-performance JSON parser for Go that provides fast validation through zero-allocation tokenization.
+Once integration with Queryfy is completed, Superjsonic will become the internal JSON parsing engine for Queryfy. 
+It provides:
+- **Fast tokenization** without building object trees
+- **Zero-allocation parsing** for minimal memory overhead  
+- **Precise error locations** for better debugging
+- **Safe validation** before unmarshaling to prevent panics
 
 ## Status
 # WORK IN PROGRESS
