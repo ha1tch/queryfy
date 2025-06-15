@@ -8,6 +8,9 @@ It provides:
 - **Precise error locations** for better debugging
 - **Safe validation** before unmarshaling to prevent panics
 
+## What Superjsonic is NOT
+This is not a general-purpose JSON library. It's specifically optimized for validation scenarios where you need to check JSON structure and content without unmarshaling into objects.
+
 ## Status
 # WORK IN PROGRESS
 
