@@ -14,6 +14,9 @@ Queryfy is a Go package for working with map-based data structures. It provides 
 - **Data transformation** with built-in and custom transformers
 - **DateTime validation** with comprehensive format support
 - **Dependent field validation** for conditional requirements
+**Work in progress**
+- **Superjsonic** our subproject aiming to produce a fast parser for JSON validation
+https://github.com/ha1tch/queryfy/tree/main/superjsonic#readme
 
 ## Why Queryfy?
 
