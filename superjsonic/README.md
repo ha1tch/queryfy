@@ -16,7 +16,7 @@ This is not a general-purpose JSON library. It's specifically optimized for vali
 
 ## Overview
 
-Superjsonic is a specialized JSON parser designed for validation scenarios where you need to verify JSON structure and content without the overhead of creating objects. It achieves 5-11x performance improvements over `encoding/json` by using a token-based approach with zero memory allocations during parsing.
+Superjsonic is a specialized JSON parser designed for validation scenarios where you need to verify JSON structure and content *before* unmarshaling, or to do so without the overhead of creating objects. It achieves 5-11x performance improvements over `encoding/json` by using a token-based approach with zero memory allocations during parsing.
 
 ## Key Features
 
