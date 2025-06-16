@@ -93,6 +93,7 @@ echo "• Email: trimmed, lowercased → john.doe@example.com"
 echo "• Username: lowercased, spaces→underscores → john_doe_123"
 echo "• Names: trimmed and capitalized → John Doe"
 echo "• Phone: normalized to US format → +15551234567"
+echo "• Password: securely hashed (not visible in response)"
 
 # Test 2: Validation Errors
 print_header "3. Validation Error Handling"
@@ -243,8 +244,8 @@ UPDATE_RESPONSE=$(curl -s -X PUT ${BASE_URL}/users/${USER_ID} \
 echo -e "\nUpdated user (notice transformations still applied):"
 echo "$UPDATE_RESPONSE" | jq '.'
 
-# Test 7: Query Features
-print_header "8. Query Features with Validation"
+# Test 7: Query Features with Default Values
+print_header "8. Query Features with Validation and Defaults"
 print_test "Querying users with various filters"
 
 echo -e "\n${BLUE}Query 1: All admin users${NC}"
@@ -253,9 +254,11 @@ curl -s "${BASE_URL}/users?role=admin" | jq '.'
 echo -e "\n${BLUE}Query 2: With pagination (limit=2, offset=0)${NC}"
 curl -s "${BASE_URL}/users?limit=2&offset=0" | jq '.'
 
-echo -e "\n${BLUE}Query 3: Invalid query parameter${NC}"
+echo -e "\n${BLUE}Query 3: No pagination params (should use defaults: limit=10, offset=0)${NC}"
+curl -s "${BASE_URL}/users" | jq '.'
+
+echo -e "\n${BLUE}Query 4: Invalid query parameter (limit exceeds max)${NC}"
 curl -s "${BASE_URL}/users?limit=200" | jq '.'
-print_success "Notice: limit is capped at 100 by validation"
 
 # Test 8: Soft Delete
 print_header "9. Soft Delete Operation"
@@ -298,17 +301,29 @@ curl -s -X POST ${BASE_URL}/users \
     "birthDate": "2025-01-01"
   }' | jq '.'
 
+# Test 10: Query Parameter Transformation
+print_header "11. Query Parameter Transformation"
+print_test "Testing query parameter normalization"
+
+echo -e "\n${BLUE}Querying with uppercase email (should be normalized)${NC}"
+curl -s "${BASE_URL}/users?email=JOHN.DOE@EXAMPLE.COM" | jq '.'
+
+echo -e "\n${BLUE}Querying with spaces in username (should be normalized)${NC}"
+curl -s "${BASE_URL}/users?username=JOHN_DOE_123" | jq '.'
+
 # Summary
 print_header "Demo Complete!"
 echo -e "${GREEN}This demo showcased:${NC}"
 echo "• Data transformation (trim, lowercase, capitalize, normalize)"
 echo "• Comprehensive validation rules"
 echo "• Phone number normalization"
-echo "• Duplicate prevention"
-echo "• Default values for optional fields"
+echo "• Duplicate prevention via custom validators"
+echo "• Default values for optional fields and query params"
 echo "• Partial updates with transformation"
-echo "• Query parameter validation"
+echo "• Query parameter validation and transformation"
 echo "• Soft delete operations"
 echo "• Multiple validation errors in single response"
+echo "• Secure password hashing"
 echo ""
 echo -e "${YELLOW}All powered by Queryfy's declarative validation and transformation pipeline!${NC}"
+echo -e "${YELLOW}Using ValidateAndTransform for cleaner code and better performance.${NC}"

@@ -15,6 +15,7 @@ import (
 	"github.com/ha1tch/queryfy/builders/transformers"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User represents our user model
@@ -22,6 +23,7 @@ type User struct {
 	ID        string    `json:"id"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
+	Password  string    `json:"-"` // Never expose password hash
 	FirstName string    `json:"firstName"`
 	LastName  string    `json:"lastName"`
 	Phone     string    `json:"phone,omitempty"`
@@ -81,7 +83,7 @@ var (
 )
 
 // InitSchemas creates all validation schemas
-func InitSchemas() *Schemas {
+func InitSchemas(service *UserService) *Schemas {
 	// Create user schema with comprehensive validation and transformation
 	createUserSchema := builders.Object().
 		Field("email",
@@ -144,8 +146,22 @@ func InitSchemas() *Schemas {
 				Enum("user", "admin", "moderator").
 				Optional()).
 		Custom(func(value interface{}) error {
-			// Custom validation: ensure unique email/username
-			// In a real app, check against database
+			data := value.(map[string]interface{})
+			email, _ := data["email"].(string)
+			username, _ := data["username"].(string)
+			
+			// Check for existing email/username
+			service.mu.RLock()
+			defer service.mu.RUnlock()
+			
+			for _, user := range service.users {
+				if user.Email == email {
+					return fmt.Errorf("email already exists")
+				}
+				if user.Username == username {
+					return fmt.Errorf("username already exists")
+				}
+			}
 			return nil
 		})
 
@@ -208,8 +224,16 @@ func InitSchemas() *Schemas {
 
 	// Query validation schema
 	queryUserSchema := builders.Object().
-		Field("email", builders.String().Email().Optional()).
-		Field("username", builders.String().Optional()).
+		Field("email", 
+			builders.Transform(
+				builders.String().Email().Optional(),
+			).Add(transformers.Trim()).
+			Add(transformers.Lowercase())).
+		Field("username", 
+			builders.Transform(
+				builders.String().Optional(),
+			).Add(transformers.Trim()).
+			Add(transformers.Lowercase())).
 		Field("role", builders.String().Enum("user", "admin", "moderator").Optional()).
 		Field("status", builders.String().Enum("active", "suspended", "deleted").Optional()).
 		Field("limit", builders.Number().Min(1).Max(100).Optional()).
@@ -235,8 +259,16 @@ func extractTransformedData(data map[string]interface{}, ctx *qf.ValidationConte
 		// Parse path and apply transformation
 		path := transform.Path
 		if path != "" {
-			// Simple implementation - in production, use proper path parsing
-			result[path] = transform.Result
+			// Handle nested paths properly
+			parts := strings.Split(path, ".")
+			if len(parts) == 1 {
+				// Simple field
+				result[path] = transform.Result
+			} else {
+				// For nested fields, we'd need a more sophisticated approach
+				// For now, this microservice only uses simple paths
+				result[parts[len(parts)-1]] = transform.Result
+			}
 		}
 	}
 
@@ -250,11 +282,19 @@ func (s *UserService) Create(data map[string]interface{}) (*User, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// Hash password before storing
+	password, _ := data["password"].(string)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash password: %w", err)
+	}
+
 	// Generate ID and timestamps
 	user := User{
 		ID:        uuid.New().String(),
 		Email:     data["email"].(string),
 		Username:  data["username"].(string),
+		Password:  string(hashedPassword),
 		FirstName: data["firstName"].(string),
 		LastName:  data["lastName"].(string),
 		BirthDate: data["birthDate"].(string),
@@ -270,16 +310,6 @@ func (s *UserService) Create(data map[string]interface{}) (*User, error) {
 	}
 	if role, ok := data["role"].(string); ok {
 		user.Role = role
-	}
-
-	// Check for duplicate email/username
-	for _, existing := range s.users {
-		if existing.Email == user.Email {
-			return nil, fmt.Errorf("email already exists")
-		}
-		if existing.Username == user.Username {
-			return nil, fmt.Errorf("username already exists")
-		}
 	}
 
 	s.users[user.ID] = user
@@ -539,8 +569,11 @@ func (h *Handler) QueryUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Extract transformed data (for normalized email/username queries)
+	transformedQuery := extractTransformedData(queryData, ctx)
+
 	// Query users
-	users, err := h.service.Query(queryData)
+	users, err := h.service.Query(transformedQuery)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to query users")
 		return
@@ -581,9 +614,13 @@ func respondValidationErrors(w http.ResponseWriter, ctx *qf.ValidationContext) {
 
 // Main function
 func main() {
-	// Initialize service and schemas
+	// Initialize service
 	service := NewUserService()
-	schemas := InitSchemas()
+	
+	// Initialize schemas with service reference for custom validators
+	schemas := InitSchemas(service)
+	
+	// Create handler
 	handler := NewHandler(service, schemas)
 
 	// Setup routes

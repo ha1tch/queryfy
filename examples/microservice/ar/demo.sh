@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Códigos de color
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -13,7 +12,7 @@ BASE_URL="http://localhost:8080"
 
 clear
 echo -e "${CYAN}╔══════════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║        Demo Funcional - Microservicio de Usuarios Argentinos           ║${NC}"
+echo -e "${CYAN}║          Demo Funcional - Microservicio de Usuarios Argentinos           ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════════════════════════════╝${NC}"
 echo
 
@@ -238,11 +237,17 @@ RESPONSE=$(curl -s -X POST ${BASE_URL}/usuarios \
     "password": "OtraClave1"
   }')
 
+# Check for both error formats: .error (from service layer) or .errores (from validation)
 if echo "$RESPONSE" | jq -e '.error' > /dev/null 2>&1; then
     echo -e "${GREEN}✓ Email duplicado correctamente rechazado${NC}"
-    echo "$RESPONSE" | jq '.error'
+    echo "Error: $(echo "$RESPONSE" | jq -r '.error')"
+elif echo "$RESPONSE" | jq -e '.errores' > /dev/null 2>&1; then
+    echo -e "${GREEN}✓ Email duplicado correctamente rechazado${NC}"
+    echo "Error: $(echo "$RESPONSE" | jq -r '.errores[0].mensaje')"
 else
     echo -e "${RED}✗ Error: permitió email duplicado${NC}"
+    echo "Respuesta recibida:"
+    echo "$RESPONSE" | jq '.'
 fi
 
 # Test 8: Consultas
@@ -286,6 +291,27 @@ else
     echo "$RESPONSE" | jq '.errores'
 fi
 
+# Test 10: Normalización de consultas
+echo -e "\n${YELLOW}10. Normalización de parámetros de consulta${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+
+echo "Buscando con DNI con puntos (25.432.109):"
+RESPONSE=$(curl -s "${BASE_URL}/usuarios?dni=25.432.109")
+if echo "$RESPONSE" | jq -e '.usuarios[] | select(.dni == "25432109")' > /dev/null 2>&1; then
+    echo -e "${GREEN}✓ DNI normalizado en consulta${NC}"
+else
+    echo -e "${RED}✗ No se normalizó el DNI en la consulta${NC}"
+fi
+
+echo -e "\nBuscando con provincia en minúsculas (caba):"
+RESPONSE=$(curl -s "${BASE_URL}/usuarios?provincia=caba")
+TOTAL=$(echo "$RESPONSE" | jq '.total')
+if [ "$TOTAL" -gt 0 ]; then
+    echo -e "${GREEN}✓ Provincia normalizada en consulta (encontrados: $TOTAL)${NC}"
+else
+    echo -e "${RED}✗ No se normalizó la provincia en la consulta${NC}"
+fi
+
 # Resumen
 echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${YELLOW}Resumen del Demo${NC}"
@@ -302,6 +328,14 @@ echo "• Manejo de caracteres especiales (ñ, tildes)"
 echo "• Validación de mayoría de edad"
 echo "• Prevención de duplicados"
 echo "• Transformación de datos"
+echo "• Normalización en consultas"
+echo "• Seguridad de contraseñas"
+
+echo -e "\n${YELLOW}Características de Queryfy utilizadas:${NC}"
+echo "• Transformaciones en todos los endpoints (crear, actualizar, consultar)"
+echo "• Validadores personalizados para reglas argentinas"
+echo "• Pipeline de transformación para normalización de datos"
+echo "• Validación integrada con lógica de negocio"
 
 echo -e "\n${YELLOW}Nota sobre CUIT:${NC}"
 echo "El algoritmo de validación de CUIT es muy estricto."

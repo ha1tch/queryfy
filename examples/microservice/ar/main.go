@@ -16,6 +16,7 @@ import (
 	"github.com/ha1tch/queryfy/builders/transformers"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Usuario representa el modelo de usuario argentino
@@ -34,6 +35,7 @@ type Usuario struct {
 	CodigoPost  string    `json:"codigoPostal"`
 	Direccion   string    `json:"direccion"`
 	CBU         string    `json:"cbu,omitempty"`
+	Password    string    `json:"-"` // Nunca exponer el hash de contraseña
 	Rol         string    `json:"rol"`
 	Estado      string    `json:"estado"`
 	CreadoEn    time.Time `json:"creadoEn"`
@@ -134,6 +136,43 @@ var normalizarCodigoPostal = func(value interface{}) (interface{}, error) {
 	return cp, nil
 }
 
+// normalizarProvincia normaliza nombres de provincias para búsquedas
+var normalizarProvincia = func(value interface{}) (interface{}, error) {
+	provincia := value.(string)
+	// Normalizar variaciones comunes
+	provincia = strings.TrimSpace(provincia)
+	
+	// Mapear variaciones comunes
+	normalizaciones := map[string]string{
+		"caba":           "CABA",
+		"capital federal": "CABA",
+		"buenos aires":   "Buenos Aires",
+		"bsas":          "Buenos Aires",
+		"cordoba":       "Córdoba",
+		"entre rios":    "Entre Ríos",
+		"rio negro":     "Río Negro",
+		"santa fe":      "Santa Fe",
+		"sgo del estero": "Santiago del Estero",
+		"tierra del fuego": "Tierra del Fuego",
+		"tucuman":       "Tucumán",
+		"neuquen":       "Neuquén",
+	}
+	
+	provinciaLower := strings.ToLower(provincia)
+	if prov, existe := normalizaciones[provinciaLower]; existe {
+		return prov, nil
+	}
+	
+	// Si no está en el mapa, buscar coincidencia parcial
+	for _, prov := range provinciasArgentinas {
+		if strings.EqualFold(provincia, prov) {
+			return prov, nil
+		}
+	}
+	
+	return provincia, nil
+}
+
 // Validadores personalizados
 
 // validarDNI verifica que el DNI sea válido
@@ -227,6 +266,8 @@ var validarCBU = func(value interface{}) error {
 		return fmt.Errorf("CBU debe contener solo números")
 	}
 	
+	// Aquí se podría agregar validación del dígito verificador del CBU
+	
 	return nil
 }
 
@@ -248,7 +289,7 @@ var validarCodigoPostal = func(value interface{}) error {
 }
 
 // InicializarEsquemas crea todos los esquemas de validación
-func InicializarEsquemas() *Esquemas {
+func InicializarEsquemas(servicio *ServicioUsuarios) *Esquemas {
 	// Esquema para crear usuario
 	crearUsuarioSchema := builders.Object().
 		Field("email",
@@ -307,9 +348,11 @@ func InicializarEsquemas() *Esquemas {
 				Age(18, 120).
 				Required()).
 		Field("provincia",
-			builders.String().
-				Enum(provinciasArgentinas...).
-				Required()).
+			builders.Transform(
+				builders.String().
+					Enum(provinciasArgentinas...).
+					Required(),
+			).Add(normalizarProvincia)).
 		Field("localidad",
 			builders.String().
 				MinLength(2).
@@ -348,10 +391,25 @@ func InicializarEsquemas() *Esquemas {
 				Enum("usuario", "admin", "moderador").
 				Optional()).
 		Custom(func(value interface{}) error {
-			// Validación cruzada: si tiene CUIT, debe ser mayor de edad
 			data := value.(map[string]interface{})
-			if cuit, hasCUIT := data["cuit"].(string); hasCUIT && cuit != "" {
-				// El validador de edad ya se encarga, pero podríamos agregar más lógica aquí
+			email, _ := data["email"].(string)
+			dni, _ := data["dni"].(string)
+			cuit, _ := data["cuit"].(string)
+			
+			// Verificar duplicados en la base de datos
+			servicio.mu.RLock()
+			defer servicio.mu.RUnlock()
+			
+			for _, usuario := range servicio.usuarios {
+				if usuario.Email == email {
+					return fmt.Errorf("el email ya está registrado")
+				}
+				if usuario.DNI == dni {
+					return fmt.Errorf("el DNI ya está registrado")
+				}
+				if cuit != "" && usuario.CUIT == cuit {
+					return fmt.Errorf("el CUIT ya está registrado")
+				}
 			}
 			return nil
 		})
@@ -378,9 +436,11 @@ func InicializarEsquemas() *Esquemas {
 			).Add(transformers.Trim()).
 			Add(normalizarTelefonoAR)).
 		Field("provincia",
-			builders.String().
-				Enum(provinciasArgentinas...).
-				Optional()).
+			builders.Transform(
+				builders.String().
+					Enum(provinciasArgentinas...).
+					Optional(),
+			).Add(normalizarProvincia)).
 		Field("localidad",
 			builders.String().
 				MinLength(2).
@@ -415,12 +475,27 @@ func InicializarEsquemas() *Esquemas {
 				Enum("activo", "suspendido", "eliminado").
 				Optional())
 
-	// Esquema para consultas
+	// Esquema para consultas con transformaciones
 	consultarUsuariosSchema := builders.Object().
-		Field("email", builders.String().Email().Optional()).
-		Field("dni", builders.String().Optional()).
-		Field("cuit", builders.String().Optional()).
-		Field("provincia", builders.String().Enum(provinciasArgentinas...).Optional()).
+		Field("email", 
+			builders.Transform(
+				builders.String().Email().Optional(),
+			).Add(transformers.Trim()).
+			Add(transformers.Lowercase())).
+		Field("dni", 
+			builders.Transform(
+				builders.String().Optional(),
+			).Add(transformers.Trim()).
+			Add(normalizarDNI)).
+		Field("cuit", 
+			builders.Transform(
+				builders.String().Optional(),
+			).Add(transformers.Trim()).
+			Add(normalizarCUIT)).
+		Field("provincia", 
+			builders.Transform(
+				builders.String().Enum(provinciasArgentinas...).Optional(),
+			).Add(normalizarProvincia)).
 		Field("rol", builders.String().Enum("usuario", "admin", "moderador").Optional()).
 		Field("estado", builders.String().Enum("activo", "suspendido", "eliminado").Optional()).
 		Field("limite", builders.Number().Min(1).Max(100).Optional()).
@@ -443,7 +518,16 @@ func extraerDatosTransformados(data map[string]interface{}, ctx *qf.ValidationCo
 	// Aplicar transformaciones basadas en el contexto
 	for _, transform := range ctx.Transformations() {
 		if transform.Path != "" {
-			result[transform.Path] = transform.Result
+			// Manejar paths anidados
+			parts := strings.Split(transform.Path, ".")
+			if len(parts) == 1 {
+				// Campo simple
+				result[transform.Path] = transform.Result
+			} else {
+				// Para campos anidados, necesitaríamos una implementación más sofisticada
+				// Por ahora, este microservicio solo usa paths simples
+				result[parts[len(parts)-1]] = transform.Result
+			}
 		}
 	}
 
@@ -456,6 +540,13 @@ func extraerDatosTransformados(data map[string]interface{}, ctx *qf.ValidationCo
 func (s *ServicioUsuarios) Crear(data map[string]interface{}) (*Usuario, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	// Hashear contraseña antes de almacenar
+	password, _ := data["password"].(string)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("error al procesar la contraseña: %w", err)
+	}
 
 	// Generar ID y timestamps
 	usuario := Usuario{
@@ -470,6 +561,7 @@ func (s *ServicioUsuarios) Crear(data map[string]interface{}) (*Usuario, error) 
 		Localidad:   data["localidad"].(string),
 		CodigoPost:  data["codigoPostal"].(string),
 		Direccion:   data["direccion"].(string),
+		Password:    string(hashedPassword),
 		Rol:         "usuario", // Rol por defecto
 		Estado:      "activo",
 		CreadoEn:    time.Now(),
@@ -490,7 +582,8 @@ func (s *ServicioUsuarios) Crear(data map[string]interface{}) (*Usuario, error) 
 		usuario.Rol = rol
 	}
 
-	// Verificar duplicados
+	// Verificar duplicados antes de insertar (además del validador custom)
+	// Esto es necesario para evitar condiciones de carrera
 	for _, existente := range s.usuarios {
 		if existente.Email == usuario.Email {
 			return nil, fmt.Errorf("el email ya está registrado")
@@ -768,8 +861,11 @@ func (m *Manejador) ConsultarUsuarios(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Extraer datos transformados (para búsquedas normalizadas)
+	datosTransformados := extraerDatosTransformados(queryData, ctx)
+
 	// Consultar usuarios
-	usuarios, err := m.servicio.Consultar(queryData)
+	usuarios, err := m.servicio.Consultar(datosTransformados)
 	if err != nil {
 		responderError(w, http.StatusInternalServerError, "Error al consultar usuarios")
 		return
@@ -810,9 +906,13 @@ func responderErroresValidacion(w http.ResponseWriter, ctx *qf.ValidationContext
 
 // Función principal
 func main() {
-	// Inicializar servicio y esquemas
+	// Inicializar servicio
 	servicio := NuevoServicioUsuarios()
-	esquemas := InicializarEsquemas()
+	
+	// Inicializar esquemas con referencia al servicio para validadores personalizados
+	esquemas := InicializarEsquemas(servicio)
+	
+	// Crear manejador
 	manejador := NuevoManejador(servicio, esquemas)
 
 	// Configurar rutas
