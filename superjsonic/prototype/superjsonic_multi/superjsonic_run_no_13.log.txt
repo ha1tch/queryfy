@@ -1,0 +1,387 @@
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: atoms+simd+array+pooling
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    22.042µs     165       46.21        100.0    37       2        0       
+file2_medium.json 28.7 KB   159.166µs    4129      176.10       100.0    920      50       0       
+file3_large.json 92.5 KB   5.2385ms     12501     17.25        100.0    2500     500      0       
+file4_xlarge.json 3.8 MB    22.454708ms  490001    167.89       100.0    85000    35000    0       
+file5_xxlarge.json 7.4 MB    53.249667ms  1035611   139.39       100.0    210539   36945    0       
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 11.042µs (165 tokens, 92.24 MB/s)
+  Standard lib: 68.333µs (14.91 MB/s)
+  Speedup: 6.19x
+
+file2_medium.json Comparison:
+  Superjsonic: 345.958µs (4129 tokens, 81.02 MB/s)
+  Standard lib: 670µs (41.83 MB/s)
+  Speedup: 1.94x
+
+file3_large.json Comparison:
+  Superjsonic: 830.75µs (12501 tokens, 108.77 MB/s)
+  Standard lib: 10.982667ms (8.23 MB/s)
+  Speedup: 13.22x
+
+
+Optimizations Enabled: atoms+simd+array+pooling
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: none
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    15.5µs       165       65.71        -        0        0        39      
+file2_medium.json 28.7 KB   144.542µs    4129      193.92       -        0        0        970     
+file3_large.json 92.5 KB   342.708µs    12501     263.67       -        0        0        3000    
+file4_xlarge.json 3.8 MB    17.437958ms  490001    216.19       -        0        0        120000  
+file5_xxlarge.json 7.4 MB    42.329625ms  1035611   175.34       -        0        0        247484  
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 2.708µs (165 tokens, 376.12 MB/s)
+  Standard lib: 75.875µs (13.42 MB/s)
+  Speedup: 28.02x
+
+file2_medium.json Comparison:
+  Superjsonic: 154.958µs (4129 tokens, 180.88 MB/s)
+  Standard lib: 267.25µs (104.88 MB/s)
+  Speedup: 1.72x
+
+file3_large.json Comparison:
+  Superjsonic: 418.125µs (12501 tokens, 216.11 MB/s)
+  Standard lib: 1.53175ms (58.99 MB/s)
+  Speedup: 3.66x
+
+
+Optimizations Enabled: none
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: none
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    32.583µs     165       31.26        -        0        0        39      
+file2_medium.json 28.7 KB   152.25µs     4129      184.10       -        0        0        970     
+file3_large.json 92.5 KB   393.667µs    12501     229.54       -        0        0        3000    
+file4_xlarge.json 3.8 MB    29.578ms     490001    127.46       -        0        0        120000  
+file5_xxlarge.json 7.4 MB    28.705667ms  1035611   258.56       -        0        0        247484  
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 2.917µs (165 tokens, 349.17 MB/s)
+  Standard lib: 59.5µs (17.12 MB/s)
+  Speedup: 20.40x
+
+file2_medium.json Comparison:
+  Superjsonic: 61.875µs (4129 tokens, 453.00 MB/s)
+  Standard lib: 250.083µs (112.08 MB/s)
+  Speedup: 4.04x
+
+file3_large.json Comparison:
+  Superjsonic: 178.667µs (12501 tokens, 505.76 MB/s)
+  Standard lib: 719.333µs (125.62 MB/s)
+  Speedup: 4.03x
+
+
+Optimizations Enabled: none
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: none
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    14.166µs     165       71.90        -        0        0        39      
+file2_medium.json 28.7 KB   218µs        4129      128.58       -        0        0        970     
+file3_large.json 92.5 KB   373.5µs      12501     241.93       -        0        0        3000    
+file4_xlarge.json 3.8 MB    14.63025ms   490001    257.68       -        0        0        120000  
+file5_xxlarge.json 7.4 MB    44.220458ms  1035611   167.85       -        0        0        247484  
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 3.834µs (165 tokens, 265.66 MB/s)
+  Standard lib: 67.709µs (15.04 MB/s)
+  Speedup: 17.66x
+
+file2_medium.json Comparison:
+  Superjsonic: 158.458µs (4129 tokens, 176.89 MB/s)
+  Standard lib: 280.083µs (100.08 MB/s)
+  Speedup: 1.77x
+
+file3_large.json Comparison:
+  Superjsonic: 382.417µs (12501 tokens, 236.29 MB/s)
+  Standard lib: 855.167µs (105.67 MB/s)
+  Speedup: 2.24x
+
+
+Optimizations Enabled: none
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: none
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    24.875µs     165       40.95        -        0        0        39      
+file2_medium.json 28.7 KB   367.791µs    4129      76.21        -        0        0        970     
+file3_large.json 92.5 KB   1.038375ms   12501     87.02        -        0        0        3000    
+file4_xlarge.json 3.8 MB    18.288583ms  490001    206.14       -        0        0        120000  
+file5_xxlarge.json 7.4 MB    48.0325ms    1035611   154.53       -        0        0        247484  
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 2.917µs (165 tokens, 349.17 MB/s)
+  Standard lib: 66.375µs (15.34 MB/s)
+  Speedup: 22.75x
+
+file2_medium.json Comparison:
+  Superjsonic: 74.208µs (4129 tokens, 377.71 MB/s)
+  Standard lib: 264.334µs (106.04 MB/s)
+  Speedup: 3.56x
+
+file3_large.json Comparison:
+  Superjsonic: 186.166µs (12501 tokens, 485.39 MB/s)
+  Standard lib: 792.041µs (114.09 MB/s)
+  Speedup: 4.25x
+
+
+Optimizations Enabled: none
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: atoms+simd+stringview+fastcompare+array+pooling+simd16
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    19.791µs     165       51.46        100.0    37       2        0       
+file2_medium.json 28.7 KB   178µs        4129      157.47       100.0    920      50       0       
+file3_large.json 92.5 KB   337.792µs    12501     267.51       100.0    2500     500      0       
+file4_xlarge.json 3.8 MB    16.318583ms  490001    231.02       100.0    85000    35000    0       
+file5_xxlarge.json 7.4 MB    61.388541ms  1035611   120.91       100.0    210539   36945    0       
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 8.541µs (165 tokens, 119.25 MB/s)
+  Standard lib: 69µs (14.76 MB/s)
+  Speedup: 8.08x
+
+file2_medium.json Comparison:
+  Superjsonic: 79.917µs (4129 tokens, 350.73 MB/s)
+  Standard lib: 337.5µs (83.05 MB/s)
+  Speedup: 4.22x
+
+file3_large.json Comparison:
+  Superjsonic: 380.25µs (12501 tokens, 237.64 MB/s)
+  Standard lib: 1.016792ms (88.87 MB/s)
+  Speedup: 2.67x
+
+
+Optimizations Enabled: atoms+simd+stringview+fastcompare+array+pooling+simd16
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: simd+array+pooling
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    20.083µs     165       50.72        -        0        0        39      
+file2_medium.json 28.7 KB   169.334µs    4129      165.53       -        0        0        970     
+file3_large.json 92.5 KB   323.417µs    12501     279.40       -        0        0        3000    
+file4_xlarge.json 3.8 MB    16.05525ms   490001    234.81       -        0        0        120000  
+file5_xxlarge.json 7.4 MB    34.350125ms  1035611   216.08       -        0        0        247484  
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 7.791µs (165 tokens, 130.73 MB/s)
+  Standard lib: 60.833µs (16.74 MB/s)
+  Speedup: 7.81x
+
+file2_medium.json Comparison:
+  Superjsonic: 78.25µs (4129 tokens, 358.20 MB/s)
+  Standard lib: 258.917µs (108.26 MB/s)
+  Speedup: 3.31x
+
+file3_large.json Comparison:
+  Superjsonic: 194.208µs (12501 tokens, 465.29 MB/s)
+  Standard lib: 739.125µs (122.26 MB/s)
+  Speedup: 3.81x
+
+
+Optimizations Enabled: simd+array+pooling
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: atoms+simd+stringview+array+pooling
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    20.75µs      165       49.09        100.0    37       2        0       
+file2_medium.json 28.7 KB   166.542µs    4129      168.30       100.0    920      50       0       
+file3_large.json 92.5 KB   342.75µs     12501     263.64       100.0    2500     500      0       
+file4_xlarge.json 3.8 MB    17.545083ms  490001    214.87       100.0    85000    35000    0       
+file5_xxlarge.json 7.4 MB    28.359417ms  1035611   261.72       100.0    210539   36945    0       
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 8.625µs (165 tokens, 118.09 MB/s)
+  Standard lib: 68.334µs (14.91 MB/s)
+  Speedup: 7.92x
+
+file2_medium.json Comparison:
+  Superjsonic: 98.083µs (4129 tokens, 285.77 MB/s)
+  Standard lib: 266.75µs (105.08 MB/s)
+  Speedup: 2.72x
+
+file3_large.json Comparison:
+  Superjsonic: 193.125µs (12501 tokens, 467.90 MB/s)
+  Standard lib: 740.666µs (122.00 MB/s)
+  Speedup: 3.84x
+
+
+Optimizations Enabled: atoms+simd+stringview+array+pooling
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview
+Superjsonic with Optimized Configuration Checks
+===============================================
+Configuration: atoms+simd+array+pooling+simd16
+
+
+Results Summary:
+File            Size      Parse Time   Tokens    Throughput   Atoms%   Atom64   Atom128  Regular
+----            ----      ----------   ------    ----------   ------   ------   -------  -------
+file1_small.json 1.0 KB    21.166µs     165       48.12        100.0    37       2        0       
+file2_medium.json 28.7 KB   153.875µs    4129      182.16       100.0    920      50       0       
+file3_large.json 92.5 KB   321.916µs    12501     280.70       100.0    2500     500      0       
+file4_xlarge.json 3.8 MB    16.396291ms  490001    229.93       100.0    85000    35000    0       
+file5_xxlarge.json 7.4 MB    42.427625ms  1035611   174.94       100.0    210539   36945    0       
+
+
+Comparison with Standard Library:
+---------------------------------
+
+file1_small.json Comparison:
+  Superjsonic: 8.875µs (165 tokens, 114.76 MB/s)
+  Standard lib: 75.792µs (13.44 MB/s)
+  Speedup: 8.54x
+
+file2_medium.json Comparison:
+  Superjsonic: 83.334µs (4129 tokens, 336.35 MB/s)
+  Standard lib: 289.916µs (96.68 MB/s)
+  Speedup: 3.48x
+
+file3_large.json Comparison:
+  Superjsonic: 297µs (12501 tokens, 304.25 MB/s)
+  Standard lib: 1.088458ms (83.02 MB/s)
+  Speedup: 3.66x
+
+
+Optimizations Enabled: atoms+simd+array+pooling+simd16
+
+Usage examples:
+  Disable all:     go run main.go -none
+  Only SIMD:       go run main.go -none -simd
+  Only atoms:      go run main.go -none -atoms
+  No atoms:        go run main.go -atoms=false
+  Everything:      go run main.go -all
+  With stringview: go run main.go -stringview

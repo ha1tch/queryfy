@@ -1,0 +1,52 @@
+{
+  "id": "order_001",
+  "customer": {
+    "id": "cust_order_001",
+    "name": "Customer jJpCw",
+    "email": "OdDak@example.com",
+    "status": "active",
+    "documentNumber": "6A5usUKApP",
+    "documentType": "passport",
+    "address": {
+      "street": "649 r1p0U St",
+      "city": "m3DkuL",
+      "country": "US"
+    },
+    "created": "2025-06-17T01:14:56.462223",
+    "updated": "2025-06-17T01:14:56.462237"
+  },
+  "items": [
+    {
+      "id": "f3dSv",
+      "name": "Item ar84",
+      "price": 17.9,
+      "amount": 2,
+      "type": "product"
+    },
+    {
+      "id": "LLXOm",
+      "name": "Item iCzQ",
+      "price": 89.11,
+      "amount": 5,
+      "type": "product"
+    },
+    {
+      "id": "Mh6li",
+      "name": "Item Wc6n",
+      "price": 169.45,
+      "amount": 1,
+      "type": "product"
+    },
+    {
+      "id": "r4318",
+      "name": "Item Hz1O",
+      "price": 21.1,
+      "amount": 1,
+      "type": "product"
+    }
+  ],
+  "total": 671.9,
+  "status": "completed",
+  "created": "2025-06-17T01:14:56.462249",
+  "updated": "2025-06-17T01:14:56.462252"
+}
