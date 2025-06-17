@@ -23,16 +23,19 @@ Queryfy is a Go package for working with map-based data structures. It provides 
 
 Existing Go solutions address only parts of the dynamic data problem. Libraries like `go-playground/validator` excel at struct validation but don't handle `map[string]interface{}` well. `gojsonschema` provides JSON Schema validation but lacks querying capabilities and requires verbose schema definitions. `tidwall/gjson` offers excellent querying but no validation. Queryfy combines validation and querying in a single, cohesive package designed specifically for Go's map-based dynamic data.
 
-## Documentation
+### Documentation
 - **[Why Queryfy?](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-why-EN.md)** - Understanding the problem Queryfy solves and why it matters
 - **[Design Philosophy](https://github.com/ha1tch/queryfy/blob/main/doc/design-and-innovations_EN_v0.1.0_2025-06-13.md)** - Core design principles and innovations
 - **[Comparison Guide](https://github.com/ha1tch/queryfy/blob/main/doc/COMPARISON.md)** - How Queryfy compares to go-playground/validator, gjson, and other libraries
+- **[Queryfy Schema-Struct Synchronization](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-schema-struct-sync-EN.md)** - Moving validated data into structs while maintaining correctness, performance, and developer sanity.
+
+### Philosophy
 - **[Philosophy: Compose at Build-Time](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-en-01.md)** - The fundamental principle behind Queryfy
 - **[Philosophy: Practical Ramifications](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-en-02.md)** - Real-world implications and patterns
 
 ### En Español
-
 - **[¿Por qué Queryfy?](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-why-ES.md)** - Entendiendo el problema que Queryfy resuelve
+- **[Sincronización Esquema-Struct de Queryfy](https://github.com/ha1tch/queryfy/blob/main/doc/queryfy-schema-struct-sync-ES.md)** - Colocando los datos validados en los structs a la vez que mantenemos la corrección de los datos, la performance, y la sanidad de los desarrolladores.
 - **[Filosofía de Diseño](https://github.com/ha1tch/queryfy/blob/main/doc/design-and-innovations_ES_v0.1.0_2025-06-13.md)** - Principios de diseño e innovaciones
 - **[Filosofía: Componer en Tiempo de Compilación](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-es-01.md)** - El principio fundamental
 - **[Filosofía: Ramificaciones Prácticas](https://github.com/ha1tch/queryfy/blob/main/doc/philosophy-es-02.md)** - Implicaciones y patrones del mundo real
