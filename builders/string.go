@@ -185,6 +185,47 @@ func (s *StringSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 	return nil
 }
 
+// FormatType returns the declared format ("email", "url", "uuid", or "").
+func (s *StringSchema) FormatType() string {
+	return s.formatType
+}
+
+// EnumValues returns the declared enum values, or nil if no enum is set.
+func (s *StringSchema) EnumValues() []string {
+	return s.enum
+}
+
+// LengthConstraints returns the min and max length pointers, either of
+// which may be nil if not set.
+func (s *StringSchema) LengthConstraints() (min, max *int) {
+	return s.minLength, s.maxLength
+}
+
+// PatternString returns the declared regex pattern, or "" if none.
+func (s *StringSchema) PatternString() string {
+	return s.patternStr
+}
+
+// PatternMatch tests a string against the compiled pattern.
+// Returns true if no pattern is set.
+func (s *StringSchema) PatternMatch(str string) bool {
+	if s.pattern == nil {
+		return true
+	}
+	return s.pattern.MatchString(str)
+}
+
+// Validators returns the custom validator functions.
+func (s *StringSchema) Validators() []queryfy.ValidatorFunc {
+	return s.validators
+}
+
+// Meta attaches a key-value metadata pair to the schema.
+func (s *StringSchema) Meta(key string, value interface{}) *StringSchema {
+	s.SetMeta(key, value)
+	return s
+}
+
 // Type implements the Schema interface.
 func (s *StringSchema) Type() queryfy.SchemaType {
 	return queryfy.TypeString

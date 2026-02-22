@@ -11,12 +11,18 @@ import (
 )
 
 // DateTimeSchema validates date/time values.
+//
+// By default, DateTimeSchema is lenient with format matching: if the specified
+// format fails to parse the input, it falls back to trying common date/time
+// formats. Use StrictFormat() to disable this fallback and enforce the exact
+// format specified.
 type DateTimeSchema struct {
 	queryfy.BaseSchema
-	format     string // The expected format (e.g., time.RFC3339, "2006-01-02")
-	minTime    *time.Time
-	maxTime    *time.Time
-	validators []queryfy.ValidatorFunc
+	format       string // The expected format (e.g., time.RFC3339, "2006-01-02")
+	strictFormat bool   // When true, only the specified format is accepted
+	minTime      *time.Time
+	maxTime      *time.Time
+	validators   []queryfy.ValidatorFunc
 }
 
 // DateTime creates a new date/time schema builder.
@@ -86,6 +92,15 @@ func (s *DateTimeSchema) DMY() *DateTimeSchema {
 // MDY sets the format to MM/DD/YYYY (used primarily in the US).
 func (s *DateTimeSchema) MDY() *DateTimeSchema {
 	s.format = "01/02/2006"
+	return s
+}
+
+// StrictFormat disables the common-format fallback. When enabled, the input
+// string must match the exact format specified (via Format, DateOnly, DMY,
+// MDY, ISO8601, etc.). Without StrictFormat, the schema will attempt to parse
+// using common date/time formats if the specified format fails.
+func (s *DateTimeSchema) StrictFormat() *DateTimeSchema {
+	s.strictFormat = true
 	return s
 }
 
@@ -250,6 +265,11 @@ func (s *DateTimeSchema) Validate(value interface{}, ctx *queryfy.ValidationCont
 			// Parse the string
 			parsed, err := time.Parse(s.format, str)
 			if err != nil {
+				// In strict format mode, only the specified format is accepted
+				if s.strictFormat {
+					ctx.AddError(fmt.Sprintf("invalid date/time format (expected %s): %s", s.format, err.Error()), str)
+					return nil
+				}
 				// Try some common formats if the specified format fails
 				if parsedAlt, err2 := tryCommonFormats(str); err2 == nil {
 					t = parsedAlt
@@ -285,6 +305,28 @@ func (s *DateTimeSchema) Validate(value interface{}, ctx *queryfy.ValidationCont
 	}
 
 	return nil
+}
+
+// FormatString returns the Go time format string configured on this schema.
+func (s *DateTimeSchema) FormatString() string {
+	return s.format
+}
+
+// IsStrictFormat reports whether StrictFormat() was called on this schema.
+func (s *DateTimeSchema) IsStrictFormat() bool {
+	return s.strictFormat
+}
+
+// TimeConstraints returns the min and max time pointers, either of
+// which may be nil if not set.
+func (s *DateTimeSchema) TimeConstraints() (min, max *time.Time) {
+	return s.minTime, s.maxTime
+}
+
+// Meta attaches a key-value metadata pair to the schema.
+func (s *DateTimeSchema) Meta(key string, value interface{}) *DateTimeSchema {
+	s.SetMeta(key, value)
+	return s
 }
 
 // Type implements the Schema interface.

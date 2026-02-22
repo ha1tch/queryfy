@@ -64,6 +64,17 @@ func (s *BoolSchema) Validate(value interface{}, ctx *queryfy.ValidationContext)
 	return nil
 }
 
+// Meta attaches a key-value metadata pair to the schema.
+func (s *BoolSchema) Meta(key string, value interface{}) *BoolSchema {
+	s.SetMeta(key, value)
+	return s
+}
+
+// Validators returns the custom validator functions.
+func (s *BoolSchema) Validators() []queryfy.ValidatorFunc {
+	return s.validators
+}
+
 // Type implements the Schema interface.
 func (s *BoolSchema) Type() queryfy.SchemaType {
 	return queryfy.TypeBool

@@ -23,6 +23,7 @@
 package queryfy
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ha1tch/queryfy/query"
@@ -62,19 +63,39 @@ func NewValidator(schema Schema) *Validator {
 	}
 }
 
-// Compile pre-compiles a schema for better performance when validating
-// multiple times. For v0.1.0, this is a no-op that returns the schema as-is.
-// Future versions will implement actual compilation optimizations.
-func Compile(schema Schema) Schema {
-	// TODO: In v0.2.0, this will pre-compile regex patterns
-	// and optimize validation paths
-	return schema
-}
-
 // MustValidate validates data against a schema and panics on error.
 // This is useful in initialization code where validation errors are fatal.
 func MustValidate(data interface{}, schema Schema) {
 	if err := Validate(data, schema); err != nil {
 		panic(fmt.Sprintf("validation failed: %v", err))
 	}
+}
+
+// ValidateAndTransform validates data against a schema and returns
+// the transformed result. If the schema does not support transformation,
+// it falls back to plain validation and returns the original data.
+func ValidateAndTransform(data interface{}, schema Schema, mode ValidationMode) (interface{}, error) {
+	ctx := NewValidationContext(mode)
+	if ts, ok := schema.(TransformableSchema); ok {
+		return ts.ValidateAndTransform(data, ctx)
+	}
+	// Fall back to plain validation
+	schema.Validate(data, ctx)
+	return data, ctx.Error()
+}
+
+// ValidateAndTransformAsync validates data with async validators and
+// returns the transformed result. If the schema has no async validators,
+// it falls back to synchronous ValidateAndTransform.
+func ValidateAndTransformAsync(goCtx context.Context, data interface{}, schema Schema, mode ValidationMode) (interface{}, error) {
+	ctx := NewValidationContext(mode)
+	if as, ok := schema.(AsyncTransformableSchema); ok && as.HasAsyncValidators() {
+		return as.ValidateAndTransformAsync(goCtx, data, ctx)
+	}
+	// Fall back to sync
+	if ts, ok := schema.(TransformableSchema); ok {
+		return ts.ValidateAndTransform(data, ctx)
+	}
+	schema.Validate(data, ctx)
+	return data, ctx.Error()
 }

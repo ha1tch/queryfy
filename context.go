@@ -29,6 +29,15 @@ func (c *ValidationContext) Mode() ValidationMode {
 	return c.mode
 }
 
+// Reset clears accumulated errors, path state, and transformation records,
+// allowing the context to be reused across multiple validations without
+// reallocating. The validation mode is preserved.
+func (c *ValidationContext) Reset() {
+	c.path = c.path[:0]
+	c.errors = c.errors[:0]
+	c.transformations = c.transformations[:0]
+}
+
 // PushPath adds a path segment to the current path.
 func (c *ValidationContext) PushPath(segment string) {
 	c.path = append(c.path, segment)

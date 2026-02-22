@@ -53,6 +53,12 @@ func (s *CustomSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 	return nil
 }
 
+// Meta attaches a key-value metadata pair to the schema.
+func (s *CustomSchema) Meta(key string, value interface{}) *CustomSchema {
+	s.SetMeta(key, value)
+	return s
+}
+
 // Type implements the Schema interface.
 func (s *CustomSchema) Type() queryfy.SchemaType {
 	return queryfy.TypeCustom

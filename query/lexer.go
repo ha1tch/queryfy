@@ -22,6 +22,8 @@ const (
 	TokenRightBracket
 	// TokenNumber represents a numeric value
 	TokenNumber
+	// TokenStar represents a wildcard '*'
+	TokenStar
 	// TokenError represents a lexing error
 	TokenError
 )
@@ -80,6 +82,9 @@ func (l *Lexer) Next() Token {
 	case ']':
 		l.pos++
 		return Token{Type: TokenRightBracket, Value: "]", Pos: l.pos - 1}
+	case '*':
+		l.pos++
+		return Token{Type: TokenStar, Value: "*", Pos: l.pos - 1}
 	default:
 		if unicode.IsDigit(rune(ch)) {
 			return l.lexNumber()
@@ -170,6 +175,7 @@ func TokenTypeName(t TokenType) string {
 		"LeftBracket",
 		"RightBracket",
 		"Number",
+		"Star",
 		"Error",
 	}
 

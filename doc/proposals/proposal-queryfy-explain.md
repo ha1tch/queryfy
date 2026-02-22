@@ -1,5 +1,9 @@
 # Queryfy Explain() Method Development Proposal
 
+**Status:** Deferred to v0.5.0
+**Last reviewed:** February 2026
+**Note:** The v0.3.0 introspection layer (field walkers, constraint accessors, schema equality/diff) provides the foundation this proposal requires. The Explain() method can now be built on top of existing introspection APIs rather than requiring new reflection machinery.
+
 ## Executive Summary
 
 This proposal outlines the implementation of an `Explain()` method for Queryfy's schema system. The feature would provide introspection capabilities that enhance debugging, documentation, and developer experience—core values of the Queryfy project.

@@ -2,8 +2,6 @@ package main
 
 import (
     "fmt"
-    "log"
-    "strings"
     
     qf "github.com/ha1tch/queryfy"
     "github.com/ha1tch/queryfy/builders"
@@ -96,7 +94,7 @@ func demonstrateBuilderFunctions() {
         ),
     )
     
-    employeeSchema := withTimestamps(
+    _ /* employeeSchema */ = withTimestamps(
         withUserFields(
             builders.Object().
                 Field("employeeId", builders.String().Pattern(`^EMP\d{6}$`).Required()).
@@ -248,7 +246,7 @@ func demonstrateSchemaFactory() {
     
     // Build schemas
     adminSchema := adminFactory.Build()
-    customerSchema := customerFactory.Build()
+    _ /* customerSchema */ = customerFactory.Build()
     
     fmt.Println("Factory Pattern Results:")
     fmt.Println("- Base has: id, email, name")
@@ -303,7 +301,7 @@ func demonstrateCreateVsUpdate() {
     }
     
     // Create schema - all fields required
-    createUserSchema := builders.Object().
+    _ /* createUserSchema */ = builders.Object().
         Field("email", emailField(true)).
         Field("password", passwordField(true, 8)).
         Field("username", builders.Transform(
@@ -326,7 +324,7 @@ func demonstrateCreateVsUpdate() {
         Field("currentPassword", builders.String().Required()) // Always required for updates
     
     // Password change schema - specific operation
-    changePasswordSchema := builders.Object().
+    _ /* changePasswordSchema */ = builders.Object().
         Field("currentPassword", builders.String().Required()).
         Field("newPassword", passwordField(true, 10)). // Stronger requirement
         Field("confirmPassword", builders.String().Required())
@@ -451,7 +449,7 @@ func demonstrateConditionalSchemas() {
     }
     
     usSchema := buildDynamicUserSchema(usConfig)
-    euSchema := buildDynamicUserSchema(euConfig)
+    _ /* euSchema */ = buildDynamicUserSchema(euConfig)
     
     fmt.Println("Regional Schema Differences:")
     fmt.Println("- US: Requires SSN, phone, has profile pictures")
@@ -539,7 +537,7 @@ func demonstrateMixinPattern() {
     )
     
     // Product schema with different mixins
-    productSchema := applyMixins(
+    _ /* productSchema */ = applyMixins(
         builders.Object().
             Field("name", builders.String().Required()).
             Field("price", builders.Number().Min(0).Required()).
@@ -627,7 +625,7 @@ func demonstrateInheritancePattern() {
         Build()
     
     // Create product entity extending base
-    productEntity := base.Extend().
+    _ /* productEntity */ = base.Extend().
         AddField("name", builders.String().Required()).
         AddField("price", builders.Number().Min(0).Required()).
         AddField("sku", builders.String().Pattern(`^SKU-\d+$`).Required()).
@@ -674,7 +672,7 @@ func demonstrateRealWorldComposition() {
     }
     
     // Product schema combining multiple patterns
-    productSchema := applyMixins(
+    _ /* productSchema */ = applyMixins(
         builders.Object().
             Field("name", builders.String().MinLength(1).MaxLength(200).Required()).
             Field("description", builders.String().Required()).
@@ -693,7 +691,7 @@ func demonstrateRealWorldComposition() {
                     builders.Object().
                         Field("productId", builders.String().Required()).
                         Field("quantity", builders.Number().Min(1).Required()),
-                )).Required()).
+                ).Required()).
                 Field("shippingAddress", builders.Object().
                     Field("street", builders.String().Required()).
                     Field("city", builders.String().Required()).
@@ -713,13 +711,14 @@ func demonstrateRealWorldComposition() {
         return schema
     }
     
-    regularOrderSchema := createOrderSchema(false)
-    premiumOrderSchema := createOrderSchema(true)
+    _ /* regularOrderSchema */ = createOrderSchema(false)
+    _ /* premiumOrderSchema */ = createOrderSchema(true)
     
     fmt.Println("E-commerce Schemas Created:")
     fmt.Println("- Product: entity + pricing + SEO mixins")
     fmt.Println("- Regular Order: entity + pricing + basic fields")
     fmt.Println("- Premium Order: regular + premium features")
+
 }
 
 // Main execution includes the real-world example

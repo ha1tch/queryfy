@@ -2,6 +2,7 @@
 package builders
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ha1tch/queryfy"
@@ -14,8 +15,9 @@ type Transformer func(value interface{}) (interface{}, error)
 // TransformSchema adds transformation capabilities to any schema.
 type TransformSchema struct {
 	queryfy.BaseSchema
-	innerSchema  queryfy.Schema
-	transformers []Transformer
+	innerSchema     queryfy.Schema
+	transformers    []Transformer
+	asyncValidators []queryfy.AsyncValidatorFunc
 }
 
 // Transform creates a new transform schema wrapping an existing schema.
@@ -24,8 +26,9 @@ func Transform(schema queryfy.Schema) *TransformSchema {
 		BaseSchema: queryfy.BaseSchema{
 			SchemaType: queryfy.TypeTransform,
 		},
-		innerSchema:  schema,
-		transformers: []Transformer{},
+		innerSchema:     schema,
+		transformers:    []Transformer{},
+		asyncValidators: []queryfy.AsyncValidatorFunc{},
 	}
 }
 
@@ -51,6 +54,19 @@ func (s *TransformSchema) Optional() *TransformSchema {
 		setter.SetRequired(false)
 	}
 	return s
+}
+
+// IsRequired returns true if either the transform wrapper or the inner schema
+// is marked as required. This ensures that wrapping a Required() schema with
+// Transform() preserves the required semantics.
+func (s *TransformSchema) IsRequired() bool {
+	if s.BaseSchema.IsRequired() {
+		return true
+	}
+	if requirer, ok := s.innerSchema.(interface{ IsRequired() bool }); ok {
+		return requirer.IsRequired()
+	}
+	return false
 }
 
 // Validate implements the Schema interface.
@@ -97,9 +113,59 @@ func (s *TransformSchema) ValidateAndTransform(value interface{}, ctx *queryfy.V
 	return transformed, ctx.Error()
 }
 
+// InnerSchema returns the wrapped schema.
+func (s *TransformSchema) InnerSchema() queryfy.Schema {
+	return s.innerSchema
+}
+
+// Meta attaches a key-value metadata pair to the schema.
+func (s *TransformSchema) Meta(key string, value interface{}) *TransformSchema {
+	s.SetMeta(key, value)
+	return s
+}
+
 // Type implements the Schema interface.
 func (s *TransformSchema) Type() queryfy.SchemaType {
 	return s.innerSchema.Type()
+}
+
+// AsyncCustom adds an async validator to the schema. Async validators are
+// only invoked by ValidateAndTransformAsync; sync methods ignore them.
+func (s *TransformSchema) AsyncCustom(fn queryfy.AsyncValidatorFunc) *TransformSchema {
+	s.asyncValidators = append(s.asyncValidators, fn)
+	return s
+}
+
+// HasAsyncValidators returns true if async validators are registered.
+func (s *TransformSchema) HasAsyncValidators() bool {
+	return len(s.asyncValidators) > 0
+}
+
+// ValidateAndTransformAsync runs sync validation and transformations first.
+// If sync validation passes, it then runs async validators sequentially
+// with the provided context. The async validators receive the transformed
+// value, not the original input.
+func (s *TransformSchema) ValidateAndTransformAsync(goCtx context.Context, value interface{}, ctx *queryfy.ValidationContext) (interface{}, error) {
+	// Run sync validation and transformation first
+	transformed, err := s.ValidateAndTransform(value, ctx)
+	if err != nil {
+		return transformed, err
+	}
+
+	// If sync passed, run async validators sequentially
+	for _, asyncValidator := range s.asyncValidators {
+		// Check context cancellation before each validator
+		if goCtx.Err() != nil {
+			ctx.AddError(fmt.Sprintf("validation cancelled: %s", goCtx.Err()), transformed)
+			return transformed, ctx.Error()
+		}
+
+		if err := asyncValidator(goCtx, transformed); err != nil {
+			ctx.AddError(err.Error(), transformed)
+		}
+	}
+
+	return transformed, ctx.Error()
 }
 
 // Extension methods for existing builders to support Transform()

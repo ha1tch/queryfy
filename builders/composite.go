@@ -41,6 +41,11 @@ func (s *AndSchema) Nullable() *AndSchema {
 }
 
 // Validate implements the Schema interface.
+// Schemas returns the list of sub-schemas in this And composite.
+func (s *AndSchema) Schemas() []queryfy.Schema {
+	return s.schemas
+}
+
 func (s *AndSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
 	if !s.CheckRequired(value, ctx) {
 		return nil
@@ -98,6 +103,11 @@ func (s *OrSchema) Nullable() *OrSchema {
 }
 
 // Validate implements the Schema interface.
+// Schemas returns the list of sub-schemas in this Or composite.
+func (s *OrSchema) Schemas() []queryfy.Schema {
+	return s.schemas
+}
+
 func (s *OrSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
 	if !s.CheckRequired(value, ctx) {
 		return nil
@@ -179,6 +189,11 @@ func (s *NotSchema) Nullable() *NotSchema {
 }
 
 // Validate implements the Schema interface.
+// InnerSchema returns the negated schema.
+func (s *NotSchema) InnerSchema() queryfy.Schema {
+	return s.schema
+}
+
 func (s *NotSchema) Validate(value interface{}, ctx *queryfy.ValidationContext) error {
 	if !s.CheckRequired(value, ctx) {
 		return nil

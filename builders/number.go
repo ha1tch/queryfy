@@ -13,6 +13,7 @@ type NumberSchema struct {
 	min        *float64
 	max        *float64
 	multipleOf *float64
+	isInteger  bool
 	validators []queryfy.ValidatorFunc
 }
 
@@ -70,6 +71,7 @@ func (s *NumberSchema) MultipleOf(value float64) *NumberSchema {
 
 // Integer validates that the number is an integer (no decimal part).
 func (s *NumberSchema) Integer() *NumberSchema {
+	s.isInteger = true
 	s.validators = append(s.validators, func(value interface{}) error {
 		num := toFloat64(value)
 		if num != math.Floor(num) {
@@ -149,6 +151,33 @@ func (s *NumberSchema) Validate(value interface{}, ctx *queryfy.ValidationContex
 	}
 
 	return nil
+}
+
+// RangeConstraints returns the min and max value pointers, either of
+// which may be nil if not set.
+func (s *NumberSchema) RangeConstraints() (min, max *float64) {
+	return s.min, s.max
+}
+
+// IsInteger reports whether the Integer() constraint was applied.
+func (s *NumberSchema) IsInteger() bool {
+	return s.isInteger
+}
+
+// MultipleOfValue returns the multipleOf constraint, or nil if not set.
+func (s *NumberSchema) MultipleOfValue() *float64 {
+	return s.multipleOf
+}
+
+// Validators returns the custom validator functions.
+func (s *NumberSchema) Validators() []queryfy.ValidatorFunc {
+	return s.validators
+}
+
+// Meta attaches a key-value metadata pair to the schema.
+func (s *NumberSchema) Meta(key string, value interface{}) *NumberSchema {
+	s.SetMeta(key, value)
+	return s
 }
 
 // Type implements the Schema interface.

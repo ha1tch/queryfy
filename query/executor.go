@@ -47,12 +47,84 @@ func ExecutePath(data interface{}, path []interface{}) (interface{}, error) {
 			}
 			current = next
 
+		case Wildcard:
+			// Wildcard: apply remaining path to each element
+			remaining := path[i+1:]
+			return executeWildcard(current, remaining, path[:i+1])
+
 		default:
 			return nil, fmt.Errorf("unexpected path segment type: %T", segment)
 		}
 	}
 
 	return current, nil
+}
+
+// executeWildcard expands [*] by applying the remaining path to each element.
+func executeWildcard(arr interface{}, remaining []interface{}, prefix []interface{}) (interface{}, error) {
+	// Handle []interface{} directly
+	if a, ok := arr.([]interface{}); ok {
+		results := make([]interface{}, 0, len(a))
+		for i, elem := range a {
+			if len(remaining) == 0 {
+				results = append(results, elem)
+			} else {
+				result, err := ExecutePath(elem, remaining)
+				if err != nil {
+					return nil, fmt.Errorf("at %s[%d]: %w", formatPath(prefix), i, err)
+				}
+				// If the result is itself a wildcard expansion (slice), flatten it
+				if expanded, ok := result.([]interface{}); ok && containsWildcard(remaining) {
+					results = append(results, expanded...)
+				} else {
+					results = append(results, result)
+				}
+			}
+		}
+		return results, nil
+	}
+
+	// Use reflection for other slice/array types
+	rv := reflect.ValueOf(arr)
+	for rv.Kind() == reflect.Ptr {
+		if rv.IsNil() {
+			return nil, fmt.Errorf("cannot expand wildcard on nil pointer")
+		}
+		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		return nil, fmt.Errorf("cannot expand wildcard on %v", rv.Kind())
+	}
+
+	results := make([]interface{}, 0, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		elem := rv.Index(i).Interface()
+		if len(remaining) == 0 {
+			results = append(results, elem)
+		} else {
+			result, err := ExecutePath(elem, remaining)
+			if err != nil {
+				return nil, fmt.Errorf("at %s[%d]: %w", formatPath(prefix), i, err)
+			}
+			if expanded, ok := result.([]interface{}); ok && containsWildcard(remaining) {
+				results = append(results, expanded...)
+			} else {
+				results = append(results, result)
+			}
+		}
+	}
+	return results, nil
+}
+
+// containsWildcard checks if a path contains a Wildcard segment.
+func containsWildcard(path []interface{}) bool {
+	for _, seg := range path {
+		if _, ok := seg.(Wildcard); ok {
+			return true
+		}
+	}
+	return false
 }
 
 // getField gets a field from an object.
@@ -154,6 +226,8 @@ func formatPath(path []interface{}) string {
 			}
 		case int:
 			result += fmt.Sprintf("[%d]", seg)
+		case Wildcard:
+			result += "[*]"
 		}
 	}
 

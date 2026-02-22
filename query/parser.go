@@ -79,32 +79,45 @@ func (p *Parser) parsePrimary() (Node, error) {
 	var node Node = &IdentifierNode{Name: p.current.Value}
 	p.advance()
 
-	// Check for array index
+	// Check for array index or wildcard
 	for p.current.Type == TokenLeftBracket {
 		p.advance() // consume '['
 
-		if p.current.Type != TokenNumber {
-			return nil, fmt.Errorf("expected number after '[' at position %d", p.current.Pos)
-		}
+		if p.current.Type == TokenStar {
+			// Wildcard: [*]
+			p.advance() // consume '*'
 
-		index, err := strconv.Atoi(p.current.Value)
-		if err != nil {
-			return nil, fmt.Errorf("invalid array index at position %d: %s",
-				p.current.Pos, p.current.Value)
-		}
+			if p.current.Type != TokenRightBracket {
+				return nil, fmt.Errorf("expected ']' after '*' at position %d", p.current.Pos)
+			}
+			p.advance() // consume ']'
 
-		p.advance() // consume number
+			node = &DotNode{
+				Left:  node,
+				Right: &WildcardNode{},
+			}
+		} else if p.current.Type == TokenNumber {
+			index, err := strconv.Atoi(p.current.Value)
+			if err != nil {
+				return nil, fmt.Errorf("invalid array index at position %d: %s",
+					p.current.Pos, p.current.Value)
+			}
 
-		if p.current.Type != TokenRightBracket {
-			return nil, fmt.Errorf("expected ']' at position %d", p.current.Pos)
-		}
+			p.advance() // consume number
 
-		p.advance() // consume ']'
+			if p.current.Type != TokenRightBracket {
+				return nil, fmt.Errorf("expected ']' at position %d", p.current.Pos)
+			}
 
-		// Create a composite node for array access
-		node = &DotNode{
-			Left:  node,
-			Right: &IndexNode{Index: index},
+			p.advance() // consume ']'
+
+			// Create a composite node for array access
+			node = &DotNode{
+				Left:  node,
+				Right: &IndexNode{Index: index},
+			}
+		} else {
+			return nil, fmt.Errorf("expected number or '*' after '[' at position %d", p.current.Pos)
 		}
 	}
 
@@ -135,6 +148,8 @@ func SimplifyNode(node Node) []interface{} {
 			path = append(path, n.Name)
 		case *IndexNode:
 			path = append(path, n.Index)
+		case *WildcardNode:
+			path = append(path, Wildcard{})
 		case *DotNode:
 			traverse(n.Left)
 			traverse(n.Right)

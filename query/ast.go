@@ -12,6 +12,8 @@ const (
 	NodeDot
 	// NodeRoot represents the root of the query
 	NodeRoot
+	// NodeWildcard represents a wildcard array access [*]
+	NodeWildcard
 )
 
 // Node represents a node in the query AST.
@@ -88,6 +90,22 @@ func (n *RootNode) String() string {
 type Query struct {
 	Root *RootNode
 }
+
+// WildcardNode represents a wildcard array access [*].
+type WildcardNode struct{}
+
+// Type returns the node type.
+func (n *WildcardNode) Type() NodeType {
+	return NodeWildcard
+}
+
+// String returns the string representation.
+func (n *WildcardNode) String() string {
+	return "[*]"
+}
+
+// Wildcard is a sentinel value used in path segments to represent [*].
+type Wildcard struct{}
 
 // String returns the string representation of the query.
 func (q *Query) String() string {

@@ -1,5 +1,9 @@
 # Queryfy Pre-Validation Development Proposal
 
+**Status:** Deferred to v0.5.0
+**Last reviewed:** February 2026
+**Note:** The superjsonic subproject is the intended vehicle for pre-validation. The v0.3.0 introspection layer provides the constraint access superjsonic will need to validate JSON tokens against schema rules without unmarshalling.
+
 ## Executive Summary
 
 This proposal outlines the implementation of pre-validation capabilities for Queryfy, enabling validation of JSON payloads before unmarshalling. Based on comprehensive analysis and market research, this feature directly addresses the #1 pain point reported by Go developers: runtime panics from type mismatches in dynamic JSON data.

@@ -1,5 +1,6 @@
-// types.go - Updated with DateTime, Dependent, and Transform types
 package queryfy
+
+import "context"
 
 // SchemaType represents the type of a schema.
 type SchemaType string
@@ -47,15 +48,29 @@ const (
 // It should return an error if validation fails, nil otherwise.
 type ValidatorFunc func(value interface{}) error
 
-// TransformerFunc is a function that transforms a value.
-// It returns the transformed value and any error.
-type TransformerFunc func(value interface{}) (interface{}, error)
+// AsyncValidatorFunc is a function that validates a value asynchronously.
+// It receives a context.Context for cancellation and timeout support,
+// and should return an error if validation fails, nil otherwise.
+// Async validators are only invoked by the async validation methods;
+// sync validation silently ignores them.
+type AsyncValidatorFunc func(ctx context.Context, value interface{}) error
 
 // TransformableSchema represents a schema that can apply transformations.
 type TransformableSchema interface {
 	Schema
 	// ValidateAndTransform returns the transformed value and any validation error
 	ValidateAndTransform(value interface{}, ctx *ValidationContext) (interface{}, error)
+}
+
+// AsyncTransformableSchema represents a schema that supports async validation
+// with transformations. Async validators run only after sync validation passes.
+type AsyncTransformableSchema interface {
+	TransformableSchema
+	// HasAsyncValidators reports whether this schema has any async validators.
+	HasAsyncValidators() bool
+	// ValidateAndTransformAsync runs sync validation and transformations first.
+	// If sync validation passes, it then runs async validators sequentially.
+	ValidateAndTransformAsync(goCtx context.Context, value interface{}, ctx *ValidationContext) (interface{}, error)
 }
 
 // Option represents a configuration option for validators.
