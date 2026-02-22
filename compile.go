@@ -2,6 +2,7 @@ package queryfy
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -70,6 +71,21 @@ func Compile(schema Schema) Schema {
 		return schema
 	}
 
+	// TransformableSchema wraps an inner schema with a transformation
+	// pipeline. Its Type() returns the inner schema's type, which would
+	// cause the compiler to strip the transform layer. Delegate instead.
+	if _, isTransform := schema.(TransformableSchema); isTransform {
+		cs := &CompiledSchema{
+			inner:      schema,
+			schemaType: schema.Type(),
+		}
+		cs.BaseSchema = extractBase(schema)
+		cs.checks = append(cs.checks, func(value interface{}, ctx *ValidationContext) {
+			schema.Validate(value, ctx)
+		})
+		return cs
+	}
+
 	cs := &CompiledSchema{
 		inner:      schema,
 		schemaType: schema.Type(),
@@ -118,6 +134,20 @@ func (cs *CompiledSchema) Type() SchemaType {
 // Inner returns the original uncompiled schema.
 func (cs *CompiledSchema) Inner() Schema {
 	return cs.inner
+}
+
+// ValidateAndTransform forwards to the inner schema's transform pipeline
+// when the inner schema is transformable.
+func (cs *CompiledSchema) ValidateAndTransform(value interface{}, ctx *ValidationContext) (interface{}, error) {
+	if ts, ok := cs.inner.(TransformableSchema); ok {
+		return ts.ValidateAndTransform(value, ctx)
+	}
+	// Non-transformable: validate and return the value unchanged.
+	cs.Validate(value, ctx)
+	if ctx.HasErrors() {
+		return nil, ctx.Error()
+	}
+	return value, nil
 }
 
 // ---- string compilation ----
@@ -353,7 +383,7 @@ func (cs *CompiledSchema) compileObject(schema Schema) {
 	// Single check for the whole object — this replaces the entire
 	// ObjectSchema.Validate method with pre-resolved field iteration
 	cs.checks = append(cs.checks, func(value interface{}, ctx *ValidationContext) {
-		objMap, ok := value.(map[string]interface{})
+		objMap, ok := toMap(value)
 		if !ok {
 			ctx.AddError(fmt.Sprintf("cannot convert %T to map", value), value)
 			return
@@ -434,7 +464,7 @@ func (cs *CompiledSchema) compileArray(schema Schema) {
 
 	// Single check for the whole array
 	cs.checks = append(cs.checks, func(value interface{}, ctx *ValidationContext) {
-		arr, ok := value.([]interface{})
+		arr, ok := toSlice(value)
 		if !ok {
 			return // type check already reported error
 		}
@@ -448,13 +478,14 @@ func (cs *CompiledSchema) compileArray(schema Schema) {
 		}
 
 		if unique && length > 1 {
-			seen := make(map[interface{}]bool, length)
+			seen := make(map[string]bool, length)
 			for _, item := range arr {
-				if seen[item] {
+				key := fmt.Sprintf("%v", item)
+				if seen[key] {
 					ctx.AddError("items must be unique", value)
 					break
 				}
-				seen[item] = true
+				seen[key] = true
 			}
 		}
 
@@ -532,4 +563,21 @@ func toFloat(value interface{}) float64 {
 	default:
 		return 0
 	}
+}
+
+// toMap converts any map[string]T to map[string]interface{}, matching the
+// non-compiled path's convertToMap behaviour. Returns nil, false for non-maps.
+func toMap(value interface{}) (map[string]interface{}, bool) {
+	if m, ok := value.(map[string]interface{}); ok {
+		return m, true
+	}
+	rv := reflect.ValueOf(value)
+	if rv.Kind() != reflect.Map || rv.Type().Key().Kind() != reflect.String {
+		return nil, false
+	}
+	result := make(map[string]interface{}, rv.Len())
+	for _, key := range rv.MapKeys() {
+		result[key.String()] = rv.MapIndex(key).Interface()
+	}
+	return result, true
 }
