@@ -237,7 +237,7 @@ not just how it reads or describes schemas.
 
 ## License
 
-Copyright 2025-2026 h@ual.fi
+Copyright 2025-2026 h@ual.li
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

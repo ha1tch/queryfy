@@ -276,7 +276,7 @@ func (cs *CompiledSchema) compileNumber(schema Schema) {
 		minVal := *min
 		cs.checks = append(cs.checks, func(value interface{}, ctx *ValidationContext) {
 			if toFloat(value) < minVal {
-				ctx.AddError(fmt.Sprintf("must be at least %v", minVal), value)
+				ctx.AddError(fmt.Sprintf("must be >= %v", minVal), value)
 			}
 		})
 	}
@@ -284,7 +284,7 @@ func (cs *CompiledSchema) compileNumber(schema Schema) {
 		maxVal := *max
 		cs.checks = append(cs.checks, func(value interface{}, ctx *ValidationContext) {
 			if toFloat(value) > maxVal {
-				ctx.AddError(fmt.Sprintf("must be at most %v", maxVal), value)
+				ctx.AddError(fmt.Sprintf("must be <= %v", maxVal), value)
 			}
 		})
 	}

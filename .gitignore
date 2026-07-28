@@ -36,3 +36,4 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+.ed-journal.json

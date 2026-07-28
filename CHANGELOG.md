@@ -1,5 +1,53 @@
 # Changelog
 
+## v0.3.2 — 2026-07-28
+
+### Fixed
+
+- `Compile()`'s numeric min/max validation used different error wording
+  ("must be at least/at most %v") than the original, uncompiled schema's
+  own check in `builders/number.go` ("must be >= /<= %v"). Same schema,
+  same constraint violation, two different messages depending on
+  whether a caller pre-compiled the schema for performance -- an
+  internal inconsistency, not an intentional difference. `Compile()`'s
+  `compileNumber` now matches `builders/number.go` exactly.
+
+### Documentation
+
+- Corrected a stale contact domain in `README.md` and `LICENSE`
+  (`h@ual.fi` -> `h@ual.li`).
+
+## v0.3.1 — 2026-02-22
+
+### Fixed
+
+Retroactively documented, 2026-07-28 -- this release shipped without a
+changelog entry; written from the actual commit diff, not reconstructed
+from the commit title alone.
+
+- **Transform stripping on compilation**: `Compile()` previously lost a
+  schema's transformation pipeline entirely when compiling a
+  `TransformableSchema` -- its `Type()` delegates to the inner schema's
+  type, which caused the compiler to treat it as a plain inner-type
+  schema and silently drop the transform. `Compile()` now detects
+  `TransformableSchema` first and delegates to the original schema's
+  own `Validate`/`ValidateAndTransform`, preserving the pipeline.
+- **Typed containers rejected during compiled validation**:
+  `compileObject`/`compileArray` used a hard type assertion
+  (`value.(map[string]interface{})` / `value.([]interface{})`), which
+  failed for any concretely-typed map or slice (`map[string]int`,
+  `[]string`, etc.) even though the equivalent, non-compiled validation
+  path accepted them. New `toMap`/`toSlice` helpers use reflection to
+  accept any compatible map/slice type, matching the uncompiled path's
+  behaviour.
+- **Unique-items check could panic**: the compiled array validator's
+  uniqueness check used `map[interface{}]bool` as a seen-set, which
+  panics at runtime if an array item is an unhashable type (a slice or
+  map). Items are now converted to their string representation before
+  being used as the set key, trading a theoretical formatting collision
+  for eliminating the panic.
+- 143 new regression tests covering all three.
+
 ## v0.3.0 — 2026-02-22
 
 Schema introspection, JSON Schema interoperability, wildcard queries,
